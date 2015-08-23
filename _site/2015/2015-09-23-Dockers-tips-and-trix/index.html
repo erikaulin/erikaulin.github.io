@@ -38,7 +38,7 @@
         <h3>Stuff I learnd and use with dockers.</h3>
 
 <p>I&#39;m using a Apple Mac with VMware Fusion and the latest <a href="https://www.docker.com/toolbox">Docker Toolbox</a>.
-Docker default configuration is to use Virtualbox so I added some tips how to use VMware Fusion instead, also added some more cpu and memory if I need some more beef for full system images.</p>
+Docker default configuration is to use Virtualbox so I added some tips how to use VMware Fusion instead, also added some more cpu and memory if I need some more beef for full system containers.</p>
 
 <h4>Create a docker environment using vmware fusion.</h4>
 
@@ -80,9 +80,10 @@ host server <span class="o">{</span>
 
 <h5>Restarting the vmware fusion network environment</h5>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/vmnet-cli --stop
-sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/vmnet-cli --configure
-sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/vmnet-cli --start</code></pre></div>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;$PATH:/Applications/VMware Fusion.app/Contents/Library/&quot;</span>
+sudo vmnet-cli --configure
+sudo vmnet-cli --stop
+sudo vmnet-cli --start</code></pre></div>
 
     </section>
 </article>
@@ -96,7 +97,7 @@ sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/v
     </a>
 
     <section id="sharing">
-        <a class="twitter" href="https://twitter.com/intent/tweet?text=http://erikaulin.github.io/2015/Dockers-tips-and-trix/ - Dockers by @erikrpm"><span class="icon-twitter"> Tweet</span></a>
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=http://erikaulin.github.io/2015/2015-09-23-Dockers-tips-and-trix/ - Dockers by @erikrpm"><span class="icon-twitter"> Tweet</span></a>
 
 <a class="facebook" href="#" onclick="
     window.open(
@@ -117,7 +118,11 @@ sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/v
         <h3>Read more</h3>
         
             <li>
-                <a href="/2015/Dockers-tips-and-trix/">Dockers<aside class="dates">Aug 23</aside></a>
+                <a href="/2015/Munki-SSL-part1/">Munki with SSL Part1<aside class="dates">Aug 23</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/2015-09-23-Dockers-tips-and-trix/">Dockers<aside class="dates">Aug 23</aside></a>
             </li>
         
             <li>
@@ -164,6 +169,3 @@ sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/v
   </script>
 </body>
 </html>
-
-
-

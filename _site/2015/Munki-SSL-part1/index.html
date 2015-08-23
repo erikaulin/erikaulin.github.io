@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Aulin - Munki with SSL Part1</title>
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="alternate" type="application/rss+xml" title="My Blog" href="/rss.xml">
+  <link rel="stylesheet" href="/assets/css/highlight.css">
+</head>
+<body>
+
+  <nav class="main-nav">
+    
+        <a href='/'> <span class="arrow">←</span> Home </a>
+    
+
+    
+        
+            <a href='/about'>About </a>
+        
+    
+    <a class="cta" href="/feed.xml">Subscribe</a>
+</nav>
+
+  
+
+  <section id="wrapper" class="">
+    <article class="post">
+    <header>
+        <h1>Munki with SSL Part1</h1>
+        <h2 class="headline">August 23, 2015</h2>
+    </header>
+    <section id="post-body">
+        <h3>Introduction</h3>
+
+<p>In this tutorial I will cover how to setup an <a href="https://www.munki.org/munki">Munki</a> environment with client SSL authentication. Hosting the munki data and web server in dockers and using a osx machine for populating data using <a href="https://github.com/lindegroup/autopkgr">Autopkgr</a>. Most guides out there use <a href="https://www.chef.io">Chef</a> or <a href="https://puppetlabs.com">Puppet</a> to push client configuration but I wanted to focus on dockers and have the possibility to move between solutions depending on situation and current infrastructure.</p>
+
+<hr>
+
+<h3>Prerequisites</h3>
+
+<ul>
+<li><a href="http://www.apple.com/mac/">Mac Computer</a>.</li>
+<li><a href="http://www.vmware.com/products/fusion">VMWare Fusion</a> or <a href="https://www.virtualbox.org">Virtualbox</a>.</li>
+<li><a href="https://www.docker.com/toolbox">Docker Toolbox</a>.</li>
+<li><a href="https://docs.docker.com/machine">Virtual Docker</a>.</li>
+<li><a href="http://kb.vmware.com/selfservice/search.do?cmd=displayKC&amp;docType=kc&amp;docTypeID=DT_KB_1_1&amp;externalId=2082109#">Virtual OSX</a> Client and Server.</li>
+</ul>
+
+<hr>
+
+<h3>Create our lab environment</h3>
+
+<p>VMware Fusion will be used in this tutorial so there will different steps for Virtualbox. It&#39;s high time to get started so lets create a Docker Machine where we will be hosting three containers: Data-only, Nginx with SSL certs and finally a SMB share used with the osx server.</p>
+
+<h5>Docker Machine</h5>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine create -d vmwarefusion munki
+<span class="nb">eval</span> <span class="s2">&quot;$(docker-machine env munki)&quot;</span></code></pre></div>
+
+<h5>Network configuration</h5>
+
+<p>In my lab environment I chose to use the NAT (vmware8) network.</p>
+
+<p>I want my VM&#39;s to have static IP&#39;s then I can create records in /etc/hosts on my machine and osx vm&#39;s.</p>
+
+<p><em>Edit the dhcpd file with your favorit edit and add your hosts after the line ####### VMNET DHCP Configuration. End of &quot;DO NOT MODIFY SECTION&quot; ######.</em></p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo vim /Library/Preferences/VMware<span class="se">\ </span>Fusion/vmnet8/dhcpd.conf</code></pre></div>
+
+<p><em>Want to use a CLI to check hosts MAC Address but during this lab lets use VMware Fusion App and check each hosts Network &gt; Settings &gt; Advanced Options and write down the MAC Address.</em></p>
+
+<p>Added three host in my case, dockers(munki) vm, osx client vm and a osx server vm.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host munki <span class="o">{</span>
+    hardware ethernet EE:EE:EE:EE:EE:EE<span class="p">;</span>
+    fixed-address 192.168.125.140<span class="p">;</span>
+<span class="o">}</span>
+host client <span class="o">{</span>
+    hardware ethernet EE:EE:EE:EE:EE:EE<span class="p">;</span>
+    fixed-address 192.168.125.141<span class="p">;</span>
+<span class="o">}</span>
+host server <span class="o">{</span>
+    hardware ethernet EE:EE:EE:EE:EE:EE<span class="p">;</span>
+    fixed-address 192.168.125.142<span class="p">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p><em>Edit the hosts file with your favorit edit and add your hosts after the last line</em></p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo vim /etc/hosts</code></pre></div>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">192.168.125.140 munki.example.com
+192.168.125.141 client.example.com
+192.168.125.142 server.example.com</code></pre></div>
+
+<p>Restart the vmnet, docker machine and your OSX VM&#39;s.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;$PATH:/Applications/VMware Fusion.app/Contents/Library/&quot;</span>
+sudo vmnet-cli --configure
+sudo vmnet-cli --stop
+sudo vmnet-cli --start
+docker-machine stop munki
+docker-machine start munki</code></pre></div>
+
+<hr>
+
+<h3>Create certificetes and Docker containers.</h3>
+
+<p>In this lab I&#39;m using self-signed certificates but when you plan for a production solution you should go with certificates from an <a href="https://en.wikipedia.org/wiki/Certificate_authority#Providers">Provider</a>.</p>
+
+<p>During the signing proccess you need to fill in <em>County Code, State, City, Organization, Common Name, Department and e-mail</em> just remember the <strong>password</strong> as it will be used in the convert process.</p>
+
+<h6>Create a lab catalog and clone docker-munki-ssl repo.</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">mkdir -p ~/munki-lab
+<span class="nb">cd</span> ~/munki-lab
+git clone git@github.com:ustwo/docker-munki-ssl.git</code></pre></div>
+
+<h6>Create a Certificate Authority root</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">openssl genrsa -des3 -out ca.key 4096
+openssl req -new -x509 -days <span class="m">365</span> -key ca.key -out ca.crt</code></pre></div>
+
+<h6>Create the Client Key and CSR</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">openssl genrsa -des3 -out client.key 4096
+openssl req -new -key client.key -out client.csr</code></pre></div>
+
+<h6>Self-sign Client crt</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">openssl x509 -req -days <span class="m">365</span> -in client.csr -CA ca.crt -CAkey ca.key -set_serial <span class="m">01</span> -out client.crt</code></pre></div>
+
+<h6>Convert Client Key and crt to PEM</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">openssl x509 -in client.crt -out client-munki.crt.pem -outform PEM
+openssl rsa -in client.key -out client-munki.key.pem -outform PEM</code></pre></div>
+
+<h6>Create the Server Key and CRT</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">openssl req -x509 -nodes -days <span class="m">365</span> -newkey rsa:2048 -keyout server.key -out server.crt</code></pre></div>
+
+<h6>Build the munki container</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker build -t munki-ssl .</code></pre></div>
+
+<h6>Create a Data Container:</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d --name munki-data --entrypoint /bin/echo munki-ssl Data-only container <span class="k">for</span> munki-ssl</code></pre></div>
+
+<h6>Start the munki-ssl container</h6>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d --name munki-ssl --volumes-from munki-data -p 443:443 -h munki-ssl munki-ssl</code></pre></div>
+
+<h6>Download and start the munki-smb container</h6>
+
+<p><em>Remember to only run this container when needed as it is a public share and require no password.</em></p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker run -d -p 445:445 --volumes-from munki-data --name munki-smb ustwo/munki-smb /munki_repo</code></pre></div>
+
+<p><em>You may have to change permissions on /munki_repo to allow for read-write privileges by a guest.</em></p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker <span class="nb">exec </span>munki-smb chown -R nobody:nogroup /munki_repo/
+docker <span class="nb">exec </span>minki-smb chmod -R ugo+rwx /munki_repo/</code></pre></div>
+
+<h3>End of Part1</h3>
+
+<p>Next part will cover the osx server and client configuration.</p>
+
+<h6>Sources</h6>
+
+<ul>
+<li><a href="https://www.afp548.com/2015/01/22/building-munki-with-docker">afp548</a></li>
+<li><a href="https://gist.github.com/mtigas/952344">mtigas</a></li>
+<li><a href="https://pravka.net/nginx-mutual-auth">pravka</a></li>
+<li><a href="http://wiki.nginx.org/FullExample">nginx</a></li>
+</ul>
+
+    </section>
+</article>
+<footer id="post-meta" class="clearfix">
+    <a href="http://twitter.com/erikrpm">
+        <img class="avatar" src="/assets/images/avatar.png">
+        <div>
+            <span class="dark">Erik Aulin</span>
+            <span>Blog about tech stuff</span>
+        </div>
+    </a>
+
+    <section id="sharing">
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=http://erikaulin.github.io/2015/Munki-SSL-part1/ - Munki with SSL Part1 by @erikrpm"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+    </section>
+</footer>
+
+<!-- Disqus comments -->
+
+
+<!-- Archive post list -->
+
+    <ul id="post-list" class="archive readmore">
+        <h3>Read more</h3>
+        
+            <li>
+                <a href="/2015/Munki-SSL-part1/">Munki with SSL Part1<aside class="dates">Aug 23</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/2015-09-23-Dockers-tips-and-trix/">Dockers<aside class="dates">Aug 23</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/random-stuff/">random<aside class="dates">Aug 11</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/Travis-CI_and_HockeyApp/">Travis-ci and HockeyApp<aside class="dates">Aug 07</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/Synology-DNS/">Synology DNS<aside class="dates">Aug 07</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/AWS-tips-and-trix/">AWS day to day<aside class="dates">Aug 06</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/ESXi-Upgrade5-5to6-0/">Upgrade ESXi from 5.5 to 6<aside class="dates">Aug 06</aside></a>
+            </li>
+        
+    </ul>
+
+
+
+
+
+  </section>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/highlight.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66017649-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>
