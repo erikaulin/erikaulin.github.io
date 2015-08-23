@@ -1,0 +1,8 @@
+*.crt
+*.key
+*.p12
+*.pem
+*.csr
+*.cert
+*.DS_Store
+_drafts/*

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Aulin</title>
+    <description>Blog about tech stuff</description>
+    <link>http://erikaulin.github.io</link>
+    <atom:link href="http://erikaulin.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    
+      <item>
+        <title>Dockers</title>
+        
+        
+          <description>&lt;h3&gt;Stuff I learnd and use with dockers.&lt;/h3&gt;
+
+&lt;p&gt;I&amp;#39;m using a Apple Mac with VMware Fusion and the latest &lt;a href=&quot;https://www.docker.com/toolbox&quot;&gt;Docker Toolbox&lt;/a&gt;.
+Docker default configuration is to use Virtualbox so I added some tips how to use VMware Fusion instead, also added some more cpu and memory if I need some more beef for full system images.&lt;/p&gt;
+</description>
+        
+        <pubDate>Sun, 23 Aug 2015 12:27:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/Dockers-tips-and-trix/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/Dockers-tips-and-trix/</guid>
+      </item>
+    
+      <item>
+        <title>random</title>
+        
+        
+          <description>&lt;p&gt;Here are some of the trip and trix I tend to use when testing out Dockers.&lt;/p&gt;
+</description>
+        
+        <pubDate>Tue, 11 Aug 2015 16:12:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/random-stuff/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/random-stuff/</guid>
+      </item>
+    
+      <item>
+        <title>Travis-ci and HockeyApp</title>
+        
+        
+          <description></description>
+        
+        <pubDate>Fri, 07 Aug 2015 11:12:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/Travis-CI_and_HockeyApp/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/Travis-CI_and_HockeyApp/</guid>
+      </item>
+    
+      <item>
+        <title>Synology DNS</title>
+        
+        
+          <description>&lt;p&gt;Here is a tutorial to set up the DNS on your Synology box.&lt;/p&gt;
+</description>
+        
+        <pubDate>Fri, 07 Aug 2015 10:12:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/Synology-DNS/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/Synology-DNS/</guid>
+      </item>
+    
+      <item>
+        <title>AWS day to day</title>
+        
+        
+          <description>&lt;p&gt;I love working from the console and aws-cli could be your best friend.
+Guide how to install this on you system can be found on &lt;a href=&quot;http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html&quot;&gt;Getting Set Up with the AWS Command Line Interface&lt;/a&gt;.&lt;/p&gt;
+</description>
+        
+        <pubDate>Thu, 06 Aug 2015 18:12:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/AWS-tips-and-trix/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/AWS-tips-and-trix/</guid>
+      </item>
+    
+      <item>
+        <title>Upgrade ESXi from 5.5 to 6</title>
+        
+        
+          <description>&lt;p&gt;It was time to upgrade my macmini&amp;#39;s running vmware ESXi 5.5 to 6.
+Since I didn&amp;#39;t want to hazzel with ISO&amp;#39;s and do it from the comfort of my desk I chose to do it via SSH and esxcli.&lt;/p&gt;
+</description>
+        
+        <pubDate>Thu, 06 Aug 2015 13:59:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/ESXi-Upgrade5-5to6-0/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/ESXi-Upgrade5-5to6-0/</guid>
+      </item>
+    
+  </channel>
+</rss>
