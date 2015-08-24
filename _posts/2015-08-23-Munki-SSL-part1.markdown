@@ -83,7 +83,7 @@ docker-machine start munki
 
 ***
 
-### Create certificetes and Docker containers.
+### Create certificates and Docker containers.
 
 In this lab I'm using self-signed certificates but when you plan for a production solution you should go with certificates from an [Provider](https://en.wikipedia.org/wiki/Certificate_authority#Providers).
 
