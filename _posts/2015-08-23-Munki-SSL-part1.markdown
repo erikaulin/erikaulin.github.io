@@ -1,7 +1,8 @@
 ---
 title:  "Munki with SSL Part1"
 date:   2015-08-23 12:20:00
-description: Setup a Munki environment with docker .
+description: Setup a Munki environment with docker.
+keywords: erik aulin,blog,osx,docker,munki,vmware,ustwo,development,ssl
 ---
 
 ### Introduction

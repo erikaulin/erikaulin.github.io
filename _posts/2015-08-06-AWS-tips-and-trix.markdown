@@ -2,6 +2,7 @@
 title:  "AWS day to day"
 date:   2015-08-06 16:12:00
 description: AWS in you day to day work
+keywords: erik aulin,blog,osx,aws,ustwo,development
 ---
 
 I love working from the console and aws-cli could be your best friend.
