@@ -37,7 +37,7 @@
     <section id="post-body">
         <h3>Introduction</h3>
 
-<p>In this tutorial I will cover how to setup an <a href="https://www.munki.org/munki">Munki</a> environment with client SSL authentication. Hosting the munki data and web server in dockers and using a osx machine for populating data using <a href="https://github.com/lindegroup/autopkgr">Autopkgr</a>. Most guides out there use <a href="https://www.chef.io">Chef</a> or <a href="https://puppetlabs.com">Puppet</a> to push client configuration but I wanted to focus on dockers and have the possibility to move between solutions depending on situation and current infrastructure.</p>
+<p>In this tutorial I will cover how to setup an <a href="https://www.munki.org/munki">Munki</a> environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using <a href="https://github.com/lindegroup/autopkgr">Autopkgr</a>. Most guides out there use <a href="https://www.chef.io">Chef</a> or <a href="https://puppetlabs.com">Puppet</a> to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.</p>
 
 <hr>
 
@@ -74,7 +74,7 @@
 
 <p><em>Want to use a CLI to check hosts MAC Address but during this lab lets use VMware Fusion App and check each hosts Network &gt; Settings &gt; Advanced Options and write down the MAC Address.</em></p>
 
-<p>Added three host in my case, dockers(munki) vm, osx client vm and a osx server vm.</p>
+<p>Added three host in my case, docker(munki) vm, osx client vm and a osx server vm.</p>
 
 <div class="highlight"><pre><code class="language-bash" data-lang="bash">host munki <span class="o">{</span>
     hardware ethernet EE:EE:EE:EE:EE:EE<span class="p">;</span>

@@ -12,7 +12,7 @@
         
           <description>&lt;h3&gt;Introduction&lt;/h3&gt;
 
-&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment with client SSL authentication. Hosting the munki data and web server in dockers and using a osx machine for populating data using &lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;. Most guides out there use &lt;a href=&quot;https://www.chef.io&quot;&gt;Chef&lt;/a&gt; or &lt;a href=&quot;https://puppetlabs.com&quot;&gt;Puppet&lt;/a&gt; to push client configuration but I wanted to focus on dockers and have the possibility to move between solutions depending on situation and current infrastructure.&lt;/p&gt;
+&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using &lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;. Most guides out there use &lt;a href=&quot;https://www.chef.io&quot;&gt;Chef&lt;/a&gt; or &lt;a href=&quot;https://puppetlabs.com&quot;&gt;Puppet&lt;/a&gt; to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.&lt;/p&gt;
 </description>
         
         <pubDate>Sun, 23 Aug 2015 14:20:00 +0200</pubDate>

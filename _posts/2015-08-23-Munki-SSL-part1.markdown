@@ -1,11 +1,11 @@
 ---
 title:  "Munki with SSL Part1"
 date:   2015-08-23 12:20:00
-description: Setup a Munki environment with Dockers .
+description: Setup a Munki environment with docker .
 ---
 
 ### Introduction
-In this tutorial I will cover how to setup an [Munki](https://www.munki.org/munki) environment with client SSL authentication. Hosting the munki data and web server in dockers and using a osx machine for populating data using [Autopkgr](https://github.com/lindegroup/autopkgr). Most guides out there use [Chef](https://www.chef.io) or [Puppet](https://puppetlabs.com) to push client configuration but I wanted to focus on dockers and have the possibility to move between solutions depending on situation and current infrastructure.
+In this tutorial I will cover how to setup an [Munki](https://www.munki.org/munki) environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using [Autopkgr](https://github.com/lindegroup/autopkgr). Most guides out there use [Chef](https://www.chef.io) or [Puppet](https://puppetlabs.com) to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.
 
 ***
 
@@ -41,7 +41,7 @@ sudo vim /Library/Preferences/VMware\ Fusion/vmnet8/dhcpd.conf
 
 *Want to use a CLI to check hosts MAC Address but during this lab lets use VMware Fusion App and check each hosts Network > Settings > Advanced Options and write down the MAC Address.*
 
-Added three host in my case, dockers(munki) vm, osx client vm and a osx server vm.
+Added three host in my case, docker(munki) vm, osx client vm and a osx server vm.
 
 {% highlight bash %}
 host munki {
