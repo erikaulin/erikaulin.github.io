@@ -1,7 +1,7 @@
 ---
-title:  "Munki with SSL Part1"
-date:   2015-08-23 12:20:00
-description: Setup a Munki environment with docker.
+title:  "Munki with SSL using Docker"
+date:   2015-08-28 19:49:00
+description: Munki with SSL client Authentication using docker .
 keywords: erik aulin,blog,osx,docker,munki,vmware,ustwo,development,ssl
 ---
 
@@ -19,75 +19,9 @@ In this tutorial I will cover how to setup an [Munki](https://www.munki.org/munk
 
 ***
 
-### Create our lab environment
-VMware Fusion will be used in this tutorial so there will different steps for Virtualbox. It's high time to get started so lets create a Docker Machine where we will be hosting three containers: Data-only, Nginx with SSL certs and finally a SMB share used with the osx server.
-
-##### Docker Machine
-{% highlight bash %}
-docker-machine create -d vmwarefusion munki
-eval "$(docker-machine env munki)"
-{% endhighlight %}
-
-##### Network configuration
-In my lab environment I chose to use the NAT (vmware8) network.
-
-
-I want my VM's to have static IP's then I can create records in /etc/hosts on my machine and osx vm's.
-
-*Edit the dhcpd file with your favorit edit and add your hosts after the line ####### VMNET DHCP Configuration. End of "DO NOT MODIFY SECTION" ######.*
-
-{% highlight bash %}
-sudo vim /Library/Preferences/VMware\ Fusion/vmnet8/dhcpd.conf
-{% endhighlight %}
-
-*Want to use a CLI to check hosts MAC Address but during this lab lets use VMware Fusion App and check each hosts Network > Settings > Advanced Options and write down the MAC Address.*
-
-Added three host in my case, docker(munki) vm, osx client vm and a osx server vm.
-
-{% highlight bash %}
-host munki {
-    hardware ethernet EE:EE:EE:EE:EE:EE;
-    fixed-address 192.168.125.140;
-}
-host client {
-    hardware ethernet EE:EE:EE:EE:EE:EE;
-    fixed-address 192.168.125.141;
-}
-host server {
-    hardware ethernet EE:EE:EE:EE:EE:EE;
-    fixed-address 192.168.125.142;
-}
-{% endhighlight %}
-
-*Edit the hosts file with your favorit edit and add your hosts after the last line*
-
-{% highlight bash %}
-sudo vim /etc/hosts
-{% endhighlight %}
-
-{% highlight bash %}
-192.168.125.140 munki.example.com
-192.168.125.141	client.example.com
-192.168.125.142 server.example.com
-{% endhighlight %}
-
-Restart the vmnet, docker machine and your OSX VM's.
-
-{% highlight bash %}
-export PATH="$PATH:/Applications/VMware Fusion.app/Contents/Library/"
-sudo vmnet-cli --configure
-sudo vmnet-cli --stop
-sudo vmnet-cli --start
-docker-machine stop munki
-docker-machine start munki
-{% endhighlight %}
-
-***
-
 ### Create certificates and Docker containers.
 
 In this lab I'm using self-signed certificates but when you plan for a production solution you should go with certificates from an [Provider](https://en.wikipedia.org/wiki/Certificate_authority#Providers).
-
 
 During the signing proccess you need to fill in *County Code, State, City, Organization, Common Name, Department and e-mail* just remember the **password** as it will be used in the convert process.
 
@@ -141,20 +75,46 @@ docker run -d --name munki-data --entrypoint /bin/echo munki-ssl Data-only conta
 docker run -d --name munki-ssl --volumes-from munki-data -p 443:443 -h munki-ssl munki-ssl
 {% endhighlight %}
 
-###### Download and start the munki-smb container
-*Remember to only run this container when needed as it is a public share and require no password.*
+***
+
+### What about data in your repo?
+It's high time to fill your repo with data, in my lab I used [smb share](https://hub.docker.com/r/nmcspadden/smb-munki/) to share the munki-data container then I used [Autopkgr](http://www.lindegroup.com/autopkgr) and [MunkiAdmin](http://hjuutilainen.github.io/munkiadmin/) to fill it.
+It will not be covered in this guide but [google](google.com) will help your out.
+
+***
+
+### Munki Client setup
+
+Transfer *client-munki.crt.pem* and *client-munki.key.pem* to your client.
 {% highlight bash %}
-docker run -d -p 445:445 --volumes-from munki-data --name munki-smb ustwo/munki-smb /munki_repo
+scp client-munki.* admin@client.example.com:/tmp
 {% endhighlight %}
-*You may have to change permissions on /munki_repo to allow for read-write privileges by a guest.*
+The ssh to your client machine and continue the setup.
+
+###### Place certs in Managed Install folder
 {% highlight bash %}
-docker exec munki-smb chown -R nobody:nogroup /munki_repo/
-docker exec minki-smb chmod -R ugo+rwx /munki_repo/
+sudo mkdir -p /Library/Managed\ Installs/certs
+sudo chmod 0700 /Library/Managed\ Installs/certs
+sudo cp /tmp/client-munki.crt.pem /Library/Managed\ Installs/certs/client-munki.crt.pem
+sudo cp /tmp/client-munki.key.pem /Library/Managed\ Installs/certs/client-munki.key.pem
+sudo chmod 0600 /Library/Managed\ Installs/certs/client-munki*
+sudo chown root:wheel /Library/Managed\ Installs/certs/client-munki*
 {% endhighlight %}
 
-### End of Part1
+######  Change the ManagedInstalls.plist defaults:
+{% highlight bash %}
+sudo defaults write /Library/Preferences/ManagedInstalls SoftwareRepoURL "https://munki.example.com/repo"
+sudo defaults write /Library/Preferences/ManagedInstalls ClientCertificatePath "/Library/Managed Installs/certs/client-munki.crt.pem"
+sudo defaults write /Library/Preferences/ManagedInstalls ClientKeyPath "/Library/Managed Installs/certs/client-munki.key.pem"
+sudo defaults write /Library/Preferences/ManagedInstalls UseClientCertificate -bool TRUE
+{% endhighlight %}
 
-Next part will cover the osx server and client configuration.
+###### Test out the client:
+{% highlight bash %}
+sudo /usr/local/munki/managedsoftwareupdate -vvv --checkonly
+{% endhighlight %}
+
+***
 
 ###### Sources
 

@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Aulin - AWS day to day</title>
+  <title>Aulin - VMware-Fusion Docker-machine</title>
   <link rel="shortcut icon" href="/assets/images/favicon.ico">
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="alternate" type="application/rss+xml" title="My Blog" href="/rss.xml">
@@ -31,51 +31,74 @@
   <section id="wrapper" class="">
     <article class="post">
     <header>
-        <h1>AWS day to day</h1>
-        <h2 class="headline">August 6, 2015</h2>
+        <h1>VMware-Fusion Docker-machine</h1>
+        <h2 class="headline">August 23, 2015</h2>
     </header>
     <section id="post-body">
-        <p>I love working from the console and aws-cli could be your best friend.
-Guide how to install this on you system can be found on <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html">Getting Set Up with the AWS Command Line Interface</a>.</p>
+        <h3>Introduction</h3>
 
-<p>Once you have finished all the step and can execute aws ec2 describe-instances from your favorit console your are ready!</p>
+<p>In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">aws ec2 describe-instances
--------------------
-<span class="p">|</span>DescribeInstances<span class="p">|</span>
-+-----------------+</code></pre></div>
+<hr>
 
-<p>First step is to generate a SSH key, you can use multiple keys depending on needs.</p>
+<h3>Prerequisites</h3>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">ssh-keygen -t rsa -f ~/.ssh/aws-&lt;NAME_OF_KEY&gt;-ec2 -b 4096</code></pre></div>
+<ul>
+<li><a href="http://www.apple.com/mac/">Mac Computer</a>.</li>
+<li><a href="http://www.vmware.com/products/fusion">VMWare Fusion</a></li>
+<li><a href="https://www.docker.com/toolbox">Docker Toolbox</a>.</li>
+</ul>
 
-<p>Next step is to upload your SSH key to your AWS.</p>
+<hr>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">aws ec2 import-key-pair --key-name aws-&lt;NAME_OF_KEY&gt;-ec2-key --public-key-material <span class="err">&quot;</span><span class="k">$(</span>cat ~/.ssh/aws-&lt;NAME_OF_KEY&gt;-ec2.pub<span class="k">)</span>”</code></pre></div>
+<h3>Create our lab environment</h3>
 
-<p>Now its time to crete a security group and some basic rules.
-In my case I only want to allow SSH traffic from a know WAN IP.</p>
+<p>If you followed all the prerequisites you should now have a standard vmware and docker toolbox environment setup.
+Lets start with creating the docker-machine in VMWare Fusion.</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">aws ec2 create-security-group --group-name SSHRule --description <span class="s2">&quot;Inbound SSH from know IP address&quot;</span>
+<h5>Docker Machine</h5>
 
-aws ec2 authorize-security-group-ingress --group-name SSHRule --cidr &lt;WAN_IP&gt;/32 --protocol tcp --port 22</code></pre></div>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">docker-machine create -d vmwarefusion docker
+<span class="nb">eval</span> <span class="s2">&quot;$(docker-machine env docker)&quot;</span></code></pre></div>
 
-<p>I use Frankfurt DataCenter and you can find images on <a href="https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#LaunchInstanceWizard:">Amazon Machine Image (AMI)</a>.
-In this example I&#39;m using Ubuntu Server 14.04 LTS (HVM), SSD Volume Type - ami-accff2b1 on a micro hardware model.</p>
+<h5>Network configuration</h5>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">aws ec2 run-instances --image-id ami-accff2b1 --key-name aws-&lt;NAME_OF_KEY&gt;-ec2-key --instance-type t2.micro --security-groups SSHRule</code></pre></div>
+<p>In my lab environment I chose to use the NAT (vmware8) network.
+Since I have several other virtual machines that I want to keep in the same environment.</p>
 
-<p>Machine will now be build and external IP address associated with the host.
-You can find the PublicIp address greping the describe-instances.</p>
+<p>I want my VM&#39;s to have static IP&#39;s then I can create records in /etc/hosts on my machine and osx vm&#39;s.</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">aws ec2 describe-instances <span class="p">|</span> grep PublicIp
-<span class="o">||</span><span class="p">|</span>  PublicIpAddress       <span class="p">|</span>  52.XX.XX.83                                         <span class="o">||</span><span class="p">|</span>
-<span class="o">||||</span><span class="p">|</span>  PublicIp      <span class="p">|</span>  52.XX.XX.83                                             <span class="o">||||</span><span class="p">|</span>
-<span class="o">||||||</span>  PublicIp      <span class="p">|</span>  52.XX.XX.83</code></pre></div>
+<p>Edit the dhcpd file with your favorit edit and add your hosts after the line <em>####### VMNET DHCP Configuration. End of &quot;DO NOT MODIFY SECTION&quot; ######.</em></p>
 
-<p>Now you are ready to SSH to your machine.</p>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo vim /Library/Preferences/VMware<span class="se">\ </span>Fusion/vmnet8/dhcpd.conf</code></pre></div>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">ssh -i ~/.ssh/aws-&lt;NAME_OF_KEY&gt;-ec2 -l ubuntu 52.XX.XX.185</code></pre></div>
+<p><em>Want to use a CLI to check hosts MAC Address but during this lab lets use VMware Fusion App and check each hosts Network &gt; Settings &gt; Advanced Options and write down the MAC Address.</em></p>
+
+<p>Added three host in my case, docker(munki) vm, osx client vm and a osx server vm.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host docker <span class="o">{</span>
+    hardware ethernet EE:EE:EE:EE:EE:EE<span class="p">;</span>
+    fixed-address 192.168.125.140<span class="p">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p><em>Edit the hosts file with your favorit edit and add your hosts after the last line</em></p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">sudo vim /etc/hosts</code></pre></div>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">192.168.125.140 docker.example.com</code></pre></div>
+
+<p>Restart the vmnet, docker machine and your OSX VM&#39;s.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;$PATH:/Applications/VMware Fusion.app/Contents/Library/&quot;</span>
+sudo vmnet-cli --configure
+sudo vmnet-cli --stop
+sudo vmnet-cli --start
+docker-machine stop munki
+docker-machine start munki</code></pre></div>
+
+<hr>
+
+<p>Thats it, you now have a docker-machine running in vmware and you are ready to start your journey into the fantastic world of docker.</p>
 
     </section>
 </article>
@@ -89,7 +112,7 @@ You can find the PublicIp address greping the describe-instances.</p>
     </a>
 
     <section id="sharing">
-        <a class="twitter" href="https://twitter.com/intent/tweet?text=http://erikaulin.github.io/2015/AWS-tips-and-trix/ - AWS day to day by @erikrpm"><span class="icon-twitter"> Tweet</span></a>
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=http://erikaulin.github.io/2015/VMware-Fusion/ - VMware-Fusion Docker-machine by @erikrpm"><span class="icon-twitter"> Tweet</span></a>
 
 <a class="facebook" href="#" onclick="
     window.open(
