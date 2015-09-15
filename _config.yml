@@ -9,13 +9,13 @@ highlighter: pygments
 
 paginate: 20
 baseurl: /
-domain_name: 'http://erikaulin.github.io'
+domain_name: 'http://aulin.co'
 google_analytics: 'UA-66017649-1'
 disqus: false
 disqus_shortname: 'airikr'
 
 # Details for the RSS feed generator
-url:            'http://erikaulin.github.io'
+url:            'http://aulin.c'
 author:         'Erik Aulin'
 authorTwitter:  'erikrpm'
 
