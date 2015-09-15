@@ -87,7 +87,7 @@ Next go to *Destinations > Server* and click the default storage > cog > *Accept
 
 ![Folder Stucture](/assets/images/code42/code42_new_store.png)
 
-### Thats it!
+### That's it!
 
 Now the server is up and running and you can continue to configure the Code42 CrashPlanPROe server as it fits your needs.
 
