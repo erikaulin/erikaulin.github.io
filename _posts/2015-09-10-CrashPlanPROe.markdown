@@ -12,7 +12,6 @@ In this tutorial I will cover how to setup a [CrashPlan](http://www.code42.com/p
 ### Prerequisites
 * [Synology hardware](https://www.synology.com/en-us/products).
 
-
 ***
 
 ### Get started
@@ -28,15 +27,15 @@ Next you need to install the Docker Applications using Package Center.
 
 #### Download image and create container.
 
-Start the Docker from Meny and go to Registry search for *crashplanproe* select it and click on Download.
+Start the Docker from menu and go to Registry search for *crashplanproe* select it and click on Download.
 
 ![Folder Stucture](/assets/images/code42/code42_docker_registry.png)
 
-Next go to Image and Launch dropdown meny select *Launch with wizard*
+Next go to Image and Launch dropdown menu select *Launch with wizard*
 
 ![Folder Stucture](/assets/images/code42/code42_docker_image.png)
 
-Chose a name for your Container and add [ports](http://support.code42.com/Administrator/3/Planning_And_Installing/TCP_And_UDP_Ports) needed.
+Choose a name for your Container and add [ports](http://support.code42.com/Administrator/3/Planning_And_Installing/TCP_And_UDP_Ports) needed.
 
 ![Folder Stucture](/assets/images/code42/code42_docker_wizard.png)
 
@@ -69,7 +68,7 @@ Once the service is up and running you can see that the folder's you created hav
 #### Configure Crash Plan PROe services.
 
 It's time to configure the service. Head to the same IP as the synology but with https and port 4285.
-In my case `https://10.2.0.200:4285` Use the MasterKey or sign up for a trial.
+In my case `https://10.2.0.200:4285`. Use the MasterKey or sign up for a trial.
 
 Now go to *Settings > Server* and change *Website protocol, host and port* to your synology IP.
 You also need to configure *Primary network address* that should be the same IP but with port 4282.
