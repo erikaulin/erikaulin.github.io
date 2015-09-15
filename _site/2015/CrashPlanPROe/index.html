@@ -37,7 +37,7 @@
     <section id="post-body">
         <h3>Introduction</h3>
 
-<p>In this tutorial I will cover how to setup a <a href="http://www.code42.com/products/crashplan">CrashPlan</a> PROE server hosted in docker container running on a <a href="https://www.synology.com/en-global">Synology</a>.</p>
+<p>In this tutorial I will cover how to setup a <a href="http://www.code42.com/products/crashplan">CrashPlan</a> PROE server hosted in <a href="https://www.docker.com">Docker</a> container running on a <a href="https://www.synology.com/en-global">Synology</a>.</p>
 
 <hr>
 
@@ -92,11 +92,11 @@ In this case you can use the folders we created. Once done hit OK and then Apply
 <h4>Starting the Container</h4>
 
 <p>Now you can click Container and you should see the code42 container.
-If its not activated click the power on icon. This part will take a wile as it will download the binary&#39;s and setup a default environment.</p>
+If its not activated click the power on icon. This part will take a while as it will download the binary&#39;s and setup a default environment.</p>
 
 <p><img src="/assets/images/code42/code42_docker_container.png" alt="Folder Stucture"></p>
 
-<p>Once the service is up and running you can see that the folder&#39;s you created have been filled with data.</p>
+<p>Once the service is up and running you can see that log files in the log folder you created.</p>
 
 <p><img src="/assets/images/code42/code42_logs.png" alt="Folder Stucture"></p>
 
@@ -114,11 +114,11 @@ You also need to configure <em>Primary network address</em> that should be the s
 Fill in a name and location /opt/backup_destination
 <img src="/assets/images/code42/code42_server_storepoints.png" alt="Folder Stucture"></p>
 
-<p>Next go to <em>Destianations &gt; Server</em> and click the default storage &gt; cog &gt; <em>Pause Incomming Data</em> and <em>Reject New Archives</em></p>
+<p>Next go to <em>Destinations &gt; Server</em> and click the default storage &gt; cog &gt; <em>Pause Incoming Data</em> and <em>Reject New Archives</em></p>
 
 <p><img src="/assets/images/code42/code42_default_store.png" alt="Folder Stucture"></p>
 
-<p>Next go to <em>Destianations &gt; Server</em> and click the default storage &gt; cog &gt; <em>Accept Incomming Data</em> and <em>Accept New Archives</em></p>
+<p>Next go to <em>Destinations &gt; Server</em> and click the default storage &gt; cog &gt; <em>Accept Incoming Data</em> and <em>Accept New Archives</em></p>
 
 <p><img src="/assets/images/code42/code42_new_store.png" alt="Folder Stucture"></p>
 

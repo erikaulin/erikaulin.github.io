@@ -6,7 +6,7 @@ keywords: erik aulin,blog,crashplan,code42,ustwo,development,synology,docker
 ---
 
 ### Introduction
-In this tutorial I will cover how to setup a [CrashPlan](http://www.code42.com/products/crashplan) PROE server hosted in docker container running on a [Synology](https://www.synology.com/en-global).
+In this tutorial I will cover how to setup a [CrashPlan](http://www.code42.com/products/crashplan) PROE server hosted in [Docker](https://www.docker.com) container running on a [Synology](https://www.synology.com/en-global).
 
 ***
 ### Prerequisites
@@ -57,11 +57,11 @@ In this case you can use the folders we created. Once done hit OK and then Apply
 #### Starting the Container
 
 Now you can click Container and you should see the code42 container.
-If its not activated click the power on icon. This part will take a wile as it will download the binary's and setup a default environment.
+If its not activated click the power on icon. This part will take a while as it will download the binary's and setup a default environment.
 
 ![Folder Stucture](/assets/images/code42/code42_docker_container.png)
 
-Once the service is up and running you can see that the folder's you created have been filled with data.
+Once the service is up and running you can see that log files in the log folder you created.
 
 ![Folder Stucture](/assets/images/code42/code42_logs.png)
 
@@ -79,11 +79,11 @@ Now got to *Destinations > Server* and click the default server > cog > *Add Sto
 Fill in a name and location /opt/backup_destination
 ![Folder Stucture](/assets/images/code42/code42_server_storepoints.png)
 
-Next go to *Destianations > Server* and click the default storage > cog > *Pause Incomming Data* and *Reject New Archives*
+Next go to *Destinations > Server* and click the default storage > cog > *Pause Incoming Data* and *Reject New Archives*
 
 ![Folder Stucture](/assets/images/code42/code42_default_store.png)
 
-Next go to *Destianations > Server* and click the default storage > cog > *Accept Incomming Data* and *Accept New Archives*
+Next go to *Destinations > Server* and click the default storage > cog > *Accept Incoming Data* and *Accept New Archives*
 
 ![Folder Stucture](/assets/images/code42/code42_new_store.png)
 

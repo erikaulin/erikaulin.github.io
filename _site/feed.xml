@@ -12,7 +12,7 @@
         
           <description>&lt;h3&gt;Introduction&lt;/h3&gt;
 
-&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in docker container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in &lt;a href=&quot;https://www.docker.com&quot;&gt;Docker&lt;/a&gt; container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.&lt;/p&gt;
 </description>
         
         <pubDate>Tue, 15 Sep 2015 14:37:00 +0200</pubDate>
