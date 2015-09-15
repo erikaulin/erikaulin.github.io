@@ -11,6 +11,7 @@ In this tutorial I will cover how to setup a [CrashPlan](http://www.code42.com/p
 ***
 ### Prerequisites
 * [Synology hardware](https://www.synology.com/en-us/products).
+* 1gb of free RAM
 
 ***
 
