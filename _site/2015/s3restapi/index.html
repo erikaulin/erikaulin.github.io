@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Aulin - restapis3</title>
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="alternate" type="application/rss+xml" title="My Blog" href="/rss.xml">
+  <link rel="stylesheet" href="/assets/css/highlight.css">
+</head>
+<body>
+
+  <nav class="main-nav">
+    
+        <a href='/'> <span class="arrow">←</span> Home </a>
+    
+
+    
+        
+            <a href='/about'>About </a>
+        
+    
+    <a class="cta" href="/feed.xml">Subscribe</a>
+</nav>
+
+  
+
+  <section id="wrapper" class="">
+    <article class="post">
+    <header>
+        <h1>restapis3</h1>
+        <h2 class="headline">August 7, 2015</h2>
+    </header>
+    <section id="post-body">
+        <p>AdditionalHttpHeaders</p>
+
+<p>AdditionalHttpHeaders</p>
+
+<p>This key provides the ability to specify custom HTTP headers to be sent with all curl() HTTP requests. AdditionalHttpHeaders must be an array of strings with valid HTTP header format. For example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;key&gt;AdditionalHttpHeaders&lt;/key&gt;
+&lt;array&gt;
+        &lt;string&gt;Key-With-Optional-Dashes: Foo Value&lt;/string&gt;
+        &lt;string&gt;another-custom-header: bar value&lt;/string&gt;
+&lt;/array&gt;
+</code></pre></div>
+<p>One could use this to obtain a cookie in a preflight script and update ManagedInstalls.plist with the appropriate header. However, it is recommended that you use Secure Config for sensitive data (i.e. cookie) since ManagedInstalls.plist is world-readable.</p>
+
+<p>http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html</p>
+
+<p>python -c &#39;import base64; print &quot;Authorization: Basic %s&quot; % base64.b64encode(&quot;USERNAME:PASSWORD”)&#39;</p>
+
+<p><key>AdditionalHttpHeaders</key>
+<array>
+    <string>Authorization: Basic VVNFUk5BTUU6UEFTU1dPUkQ=</string>
+</array></p>
+
+<p>sudo defaults write /Library/Preferences/ManagedInstalls AdditionalHttpHeaders -array &quot;Authorization: AWS QUtJQUpHREFaU0JYSUMzTFRCUUE6Z3BxRm50eGo0cHN0UGJ5Rnd4UEFGUDRFSkNUd1VxZk03aWZkSTZsNg==&quot;</p>
+
+<p>sudo defaults write /Library/Preferences/ManagedInstalls AdditionalHttpHeaders -array &quot;Authorization: AWS AKIAJGDAZSBXIC3LTBQA:gpqFntxj4pstPbyFwxPAFP4EJCTwUqfM7ifdI6l6&quot;</p>
+
+<p>sudo defaults write /Library/Preferences/ManagedInstalls SoftwareRepoURL &quot;http://munki-ustwo-lab.s3-website-us-east-1.amazonaws.com&quot;</p>
+
+<p>http://munki-ustwo-lab.s3-website-us-east-1.amazonaws.com</p>
+
+<p>python -c &#39;import base64; print &quot;Authorization: AWS %s&quot; % base64.b64encode(&quot;AKIAJGDAZSBXIC3LTBQA:gpqFntxj4pstPbyFwxPAFP4EJCTwUqfM7ifdI6l6&quot;)&#39;
+Authorization: AWS AWSAccessKeyId:Signature</p>
+
+<p>ACCESS<em>KEY=&quot;AKIAJGDAZSBXIC3LTBQA&quot;
+AWS</em>SECRET_KEY=&quot;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&quot;</p>
+
+<p>{
+    &quot;Version&quot;: &quot;2008-10-17&quot;,
+    &quot;Statement&quot;: [
+        {
+            &quot;Sid&quot;: &quot;AllowPublicRead&quot;,
+            &quot;Effect&quot;: &quot;Allow&quot;,
+            &quot;Principal&quot;: {
+                &quot;AWS&quot;: &quot;<em>&quot;
+            },
+            &quot;Action&quot;: &quot;s3:GetObject&quot;,
+            &quot;Resource&quot;: &quot;arn:aws:s3:::munki-ustwo-lab/</em>&quot;
+        }
+    ]
+}</p>
+
+<p>http://docs.aws.amazon.com/AmazonS3/latest/API/bucket-policy-s3-sigv4-conditions.html
+http://docs.aws.amazon.com/AmazonS3/latest/dev/S3_Authentication2.html</p>
+
+<p>{
+   &quot;Version&quot;: &quot;2012-10-17&quot;,
+   &quot;Statement&quot;: [
+         {
+               &quot;Sid&quot;: &quot;Allow only requests that use Authorization header for request authentication. Deny POST or presigned URL requests.&quot;,
+               &quot;Effect&quot;: &quot;Deny&quot;,
+               &quot;Principal&quot;: &quot;<em>&quot;,
+               &quot;Action&quot;: &quot;s3:</em>&quot;,
+               &quot;Resource&quot;: &quot;arn:aws:s3:::munki-ustwo-lab/*&quot;,
+               &quot;Condition&quot;: {
+                     &quot;StringNotEquals&quot;: {
+                           &quot;s3:authType&quot;: &quot;REST-HEADER&quot;
+                     }
+               }
+         }
+   ]
+}</p>
+
+<p>{
+   &quot;Version&quot;: &quot;2012-10-17&quot;,
+   &quot;Statement&quot;: [
+         {
+               &quot;Sid&quot;: &quot;Allow only requests that use Authorization header for request authentication. Deny POST or presigned URL requests.&quot;,
+               &quot;Effect&quot;: &quot;Deny&quot;,
+               &quot;Principal&quot;: &quot;<em>&quot;,
+               &quot;Action&quot;: &quot;s3:</em>&quot;,
+               &quot;Resource&quot;: &quot;arn:aws:s3:::munki-ustwo-lab/*&quot;,
+               &quot;Condition&quot;: {
+                     &quot;StringNotEquals&quot;: {
+                           &quot;s3:authType&quot;: &quot;AWS AKIAJGDAZSBXIC3LTBQA:gpqFntxj4pstPbyFwxPAFP4EJCTwUqfM7ifdI6l6&quot;
+                     }
+               }
+         }
+   ]
+}</p>
+
+<p>&quot;AWS #{access<em>key</em>id}:#{encoded<em>canonical}&quot;
+http://amazon.rubyforge.org/doc/classes/AWS/S3/Authentication.html
+&quot;AWSAccessKeyId=#{access</em>key<em>id}&amp;Expires=#{expires}&amp;Signature=#{encoded</em>canonical}&quot;</p>
+
+<p>AWS S3 Authentication secured HTTP Request
+GET /photos/puppy.jpg HTTP/1.1
+Host: johnsmith.s3.amazonaws.com
+Date: Tue, 27 Mar 2007 19:36:42 +0000
+Authorization: AWS 0PN5J17HBGZHT7JJ3X82:xXjDGYUmKxnwqr5KXNPGldn5LbA=</p>
+
+<h1>!/bin/sh</h1>
+
+<p>BUCKET=munki-ustwo-lab
+FILE=video/oceans.ism/oceans.ismv</p>
+
+<p>KEY=AKIAJGDAZSBXIC3LTBQA
+SECRET=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</p>
+
+<h1>TIMESTAMP=$(shell $(PHP) -r &quot;print (time() + 3600);&quot;)</h1>
+
+<h1>Human time: Thu, 31 Dec 2020 00:00:00 GMT</h1>
+
+<p>TIMESTAMP=1609372800</p>
+
+<p>STRING=&quot;GET\n\n\n$TIMESTAMP\n/$BUCKET/$FILE&quot;
+SIGNATURE=<code>php -r &quot;print urlencode(base64_encode((hash_hmac(\&quot;sha1\&quot;,utf8_encode(\&quot;$STRING\&quot;),&#39;$SECRET&#39;,TRUE))));&quot;</code>
+MUNKI<em>URL=&quot;http://$BUCKET.s3.amazonaws.com/$FILE?AWSAccessKeyId=$KEY&amp;Expires=$TIMESTAMP&amp;Signature=$SIGNATURE&quot;
+echo $MUNKI</em>URL</p>
+
+    </section>
+</article>
+<footer id="post-meta" class="clearfix">
+    <a href="http://twitter.com/erikrpm">
+        <img class="avatar" src="/assets/images/avatar.png">
+        <div>
+            <span class="dark">Erik Aulin</span>
+            <span>Blog about tech stuff</span>
+        </div>
+    </a>
+
+    <section id="sharing">
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=http://erikaulin.github.io/2015/s3restapi/ - restapis3 by @erikrpm"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+    </section>
+</footer>
+
+<!-- Disqus comments -->
+
+
+<!-- Archive post list -->
+
+    <ul id="post-list" class="archive readmore">
+        <h3>Read more</h3>
+        
+            <li>
+                <a href="/2015/CrashPlanPROe/">Crashplan PROe<aside class="dates">Sep 15</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/Munki-SSL-Docker/">Munki with SSL using Docker<aside class="dates">Aug 28</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/VMware-Fusion/">VMware-Fusion Docker-machine<aside class="dates">Aug 23</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/2015-08-28-Munki-S3-Nginx-Proxy/">Munki with SSL<aside class="dates">Aug 23</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/2015-09-23-Dockers-tips-and-trix/">Dockers<aside class="dates">Aug 23</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/random-stuff/">random<aside class="dates">Aug 11</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/Travis-CI_and_HockeyApp/">Travis-ci and HockeyApp<aside class="dates">Aug 07</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/s3restapi/">restapis3<aside class="dates">Aug 07</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/Synology-DNS/">Synology DNS<aside class="dates">Aug 07</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/AWS-tips-and-trix/">AWS day to day<aside class="dates">Aug 06</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/ESXi-Upgrade5-5to6-0/">Upgrade ESXi from 5.5 to 6<aside class="dates">Aug 06</aside></a>
+            </li>
+        
+    </ul>
+
+
+
+
+
+  </section>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/highlight.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66017649-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>

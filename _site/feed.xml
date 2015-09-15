@@ -7,6 +7,20 @@
     <atom:link href="http://erikaulin.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Crashplan PROe</title>
+        
+        
+          <description>&lt;h3&gt;Introduction&lt;/h3&gt;
+
+&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in docker container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.&lt;/p&gt;
+</description>
+        
+        <pubDate>Tue, 15 Sep 2015 14:37:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/CrashPlanPROe/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/CrashPlanPROe/</guid>
+      </item>
+    
+      <item>
         <title>Munki with SSL using Docker</title>
         
         
@@ -89,6 +103,18 @@ Docker default configuration is to use Virtualbox so I added some tips how to us
       </item>
     
       <item>
+        <title>restapis3</title>
+        
+        
+          <description>&lt;p&gt;AdditionalHttpHeaders&lt;/p&gt;
+</description>
+        
+        <pubDate>Fri, 07 Aug 2015 10:12:00 +0200</pubDate>
+        <link>http://erikaulin.github.io/2015/s3restapi/</link>
+        <guid isPermaLink="true">http://erikaulin.github.io/2015/s3restapi/</guid>
+      </item>
+    
+      <item>
         <title>Synology DNS</title>
         
         
@@ -111,19 +137,6 @@ Guide how to install this on you system can be found on &lt;a href=&quot;http://
         <pubDate>Thu, 06 Aug 2015 18:12:00 +0200</pubDate>
         <link>http://erikaulin.github.io/2015/AWS-tips-and-trix/</link>
         <guid isPermaLink="true">http://erikaulin.github.io/2015/AWS-tips-and-trix/</guid>
-      </item>
-    
-      <item>
-        <title>Upgrade ESXi from 5.5 to 6</title>
-        
-        
-          <description>&lt;p&gt;It was time to upgrade my macmini&amp;#39;s running vmware ESXi 5.5 to 6.
-Since I didn&amp;#39;t want to hazzel with ISO&amp;#39;s and do it from the comfort of my desk I chose to do it via SSH and esxcli.&lt;/p&gt;
-</description>
-        
-        <pubDate>Thu, 06 Aug 2015 13:59:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/ESXi-Upgrade5-5to6-0/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/ESXi-Upgrade5-5to6-0/</guid>
       </item>
     
   </channel>
