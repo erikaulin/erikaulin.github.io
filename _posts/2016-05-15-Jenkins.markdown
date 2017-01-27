@@ -1,0 +1,107 @@
+---
+title:  "Jenkins"
+date:   2016-05-16 19:49:00
+description: Jenkins in docker
+keywords: erik,aulin,blog,docker,jenkins,ci,development
+---
+
+### Jenkins Master in Docker
+In this tutorial I will cover how to setup an Jenkins environment using docker. It will focus on a scenario where Nginx serves Jenkins app. This using the latest updates to docker network. We will make use of the autocreated bridge network that generates hostnames inside docker. This will let us serve internal host and port so we can upstream in nginx and we only need to expose nginx’s external port. Having nginx in place also let us adapt our scenarios if we need to use SSL certificates.
+
+##### Highlights
+
+* Host Jenkins on either on-prem or cloud.
+* Manage build nodes using snapshots.
+* Exponentially grow your build nodes.
+
+***
+
+### Lets get started
+There are many ways you use  docker,  I chose to [docker machine](http://docs.docker.com/machine/) and [docker-compose](http://docs.docker.com/compose/) to do it in this guide.
+Creating a docker-machine {% highlight bash %}docker-machine create -d  jenkins{% endhighlight %} then {% highlight bash %}eval $(docker-machine env jenkins){% endhighlight %} now you are ready to use docker-compose.
+
+Clone my [repo](https://github.com/erikaulin/docker-jenkins) {% highlight bash %}git clone https://github.com/erikaulin/docker-jenkins.git{% endhighlight %} this contains all the different configurations files needed to get started.
+
+##### Most important files
+* docker-compose.yml
+* conf/jenkins-master.env
+
+I chose to use Jenkins image from [Blacklabelops](https://hub.docker.com/r/blacklabelops/jenkins/) as it's preloaded with Java and configured to use environment file.
+
+{% highlight bash %}
+docker-compose.yml
+version: '2'
+services:
+  jenkins:
+    image: blacklabelops/jenkins
+    container_name: jenkins
+    volumes_from:
+      - volumes
+    env_file:
+      - conf/jenkins-master.env
+  nginx:
+    container_name: nginx
+    build: ./nginx/
+    ports:
+      - "80:80"
+  volumes:
+    image: busybox:latest
+    container_name: jenkins_data
+    volumes:
+      # Logging volumes
+      - /var/log
+      # Jenkins volume
+      - /jenkins
+    command: chown -R 1000:1000 /var/log /jenkins
+{% endhighlight %}
+
+***
+
+You edit the default setup of Jenkins by making changes to conf/jenkins-master.env.
+
+Update these to your default configuration.
+
+JENKINS_ADMIN_USER  
+JENKINS_ADMIN_PASSWORD
+JENKINS_PLUGINS
+
+JENKINS_MASTER_EXECUTORS is set to 0 as you will use build nodes to execute builds.
+
+{% highlight bash %}
+conf/jenkins-master.env
+# Setting up the admin account and basic security
+JENKINS_ADMIN_USER=jenkins
+JENKINS_ADMIN_PASSWORD=p4ssw0rd
+# Specify the Java VM parameters
+# See: http://www.oracle.com/technetwork/articles/java/vmoptions-jsp-140102.html
+JAVA_VM_PARAMETERS=-Xmx1024m -Xms512m
+# Number of executors on Jenkins master.
+JENKINS_MASTER_EXECUTORS=0
+# Whitespace separated list of required plugins.
+# Example: gitlab-plugin hipchat swarm
+JENKINS_PLUGINS=swarm git unity3d-plugin github envinject log-parser simple-theme-plugin gravatar
+# Jenkins port for accepting swarm slave connections
+JENKINS_SLAVEPORT=50000
+# Jenkins startup parameters.
+# See: https://wiki.jenkins-ci.org/display/JENKINS/Starting+and+Accessing+Jenkins
+JENKINS_PARAMETERS=
+# Jenkins Mail Setup
+#SMTP_USER_NAME=
+#SMTP_USER_PASS=
+#SMTP_HOST=
+#SMTP_PORT=
+#SMTP_REPLYTO_ADDRESS=
+#SMTP_USE_SSL=no
+#SMTP_CHARSET=
+# Jenkins log file. Not necessary, because Jenkins logs to Docker.
+LOG_FILE=
+{% endhighlight %}
+
+### Go gadget go
+
+With [docker network](https://docs.docker.com/engine/userguide/networking/) and using version 2 with docker-compose  it automatically creates a bridge network and generates hostnames internally in docker. Then you only need to expose the port for nginx and the upstream uses container names. If you need to make updates don't forget to check nginx/jenkins.conf so it matches.
+
+Now you are ready to spin up the containers using | docker-compose up -d | and use your favorite browser to manage your jenkins. If you don't know the docker machine IP use | docker-machine ip jenkins |.
+Hoped this guide helped you or just inspired you to make something of your own.
+
+Cheers Erik
