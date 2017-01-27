@@ -5,14 +5,13 @@
     <description>Blog about tech stuff</description>
     <link>http://aulin.co//</link>
     <atom:link href="http://aulin.co//feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 27 Jan 2017 15:18:28 +0100</pubDate>
-    <lastBuildDate>Fri, 27 Jan 2017 15:18:28 +0100</lastBuildDate>
+    <pubDate>Fri, 27 Jan 2017 20:34:04 +0100</pubDate>
+    <lastBuildDate>Fri, 27 Jan 2017 20:34:04 +0100</lastBuildDate>
     <generator>Jekyll v3.0.2</generator>
     
       <item>
         <title>Munki</title>
-        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
-&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment in the cloud. OSX clients will use a HTTP header Array to authenticate towards an dockerized nginx-s3-proxy that will serve repo hosted on AWS S3.&lt;/p&gt;
+        <description>&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment in the cloud. OSX clients will use a HTTP header Array to authenticate towards an dockerized nginx-s3-proxy that will serve repo hosted on AWS S3.&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -74,8 +73,9 @@
             &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
         &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;s2&quot;&gt;&quot;Version&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;2012-10-17&quot;&lt;/span&gt;,
     &lt;span class=&quot;s2&quot;&gt;&quot;Statement&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
         &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -107,7 +107,7 @@
     &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h6 id=&quot;what-about-repo-content&quot;&gt;What about repo content?&lt;/h6&gt;
+&lt;h4 id=&quot;what-about-repo-content&quot;&gt;What about repo content?&lt;/h4&gt;
 &lt;p&gt;There are many ways to store the your local repository. If you are using ex. Synology NAS you could use Cloud Sync. OSX have several GUI applications you can use ex. Mountain Duck.&lt;/p&gt;
 
 &lt;p&gt;I use AWS CLI to sync local repo with S3 bucket using command line. AWS CLI can be installed using Brew&lt;/p&gt;
@@ -116,12 +116,13 @@
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws configure&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;I recommend you setup both your admin machine and osx server.&lt;/p&gt;
 
-&lt;p&gt;On your server use the RWAccessKeyID and RWSecretAccessKey you created for&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws configure&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-&lt;p&gt;then you can sync using&lt;/p&gt;
+&lt;p&gt;On your server use the same RWAccessKeyID and RWSecretAccessKey to setup aws configure and you are ready to run&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws s3 sync . s3://munki-repo&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-&lt;p&gt;where you change s3://munki-repo to match your s3 bucket and the content will be uploaded.
-Docker time?&lt;/p&gt;
+&lt;p&gt;where you change s3://munki-repo to match your s3 bucket and the content will be uploaded.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;docker&quot;&gt;Docker&lt;/h3&gt;
 
 &lt;p&gt;I have been using docker-machine to generate EC2 images. AWS has their own service called Amazon EC2 Container Service (ECS) so might update my guide at a later point.&lt;/p&gt;
 
@@ -154,26 +155,26 @@ s3proxy docker container&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;If you are using AWS EC2 for you docker-machine you can open ports using AWC CLI. First you need to find the machines GroupId. Then open the port you chose in your container.&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git clone --recursive https://github.com/erikaulin/docker-s3proxy.git
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git clone --recursive https://github.com/erikaulin/docker-s3proxy.git&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-htpasswd -c .htpasswd USERNAME
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;htpasswd -c .htpasswd USERNAME&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-docker build -t s3proxy .
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker build -t s3proxy .&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-docker run --name s3proxy
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker run --name s3proxy
   -e &lt;span class=&quot;nv&quot;&gt;S3PROXY_BUCKET_NAME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;munki-repo&quot;&lt;/span&gt;
   -e &lt;span class=&quot;nv&quot;&gt;S3PROXY_AWS_ACCESS_KEY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ROAccessKeyID&quot;&lt;/span&gt;
   -e &lt;span class=&quot;nv&quot;&gt;S3PROXY_AWS_SECRET_KEY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ROSecretAccessKey&quot;&lt;/span&gt;
   -p 60080:80
-  -d s3proxy
+  -d s3proxy&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-aws ec2 describe-instances | grep GroupId
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 describe-instances | grep GroupId&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-aws ec2 authorize-security-group-ingress --group-id sg-cd00xxx0 --protocol tcp --port 60080 --cidr 0.0.0.0/0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 authorize-security-group-ingress --group-id sg-cd00xxx0 --protocol tcp --port 60080 --cidr 0.0.0.0/0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;hr /&gt;
 
-&lt;h4 id=&quot;munki-client&quot;&gt;Munki Client&lt;/h4&gt;
+&lt;h3 id=&quot;munki-client&quot;&gt;Munki Client&lt;/h3&gt;
 &lt;p&gt;Now we are ready to start using your munki repo in the cloud. You need to generate a HTTP Headers Array based on the USERNAME and PASSWORD. Using the python command you can generate this just change the details and run. Now you just need a IP or DNS record to the docker-machine. In my case I created a A record.&lt;/p&gt;
 
 &lt;p&gt;With these two commands your can update your clients to use the new URL add activate the use of HTTP Header array.&lt;/p&gt;
@@ -196,8 +197,7 @@ sudo defaults write /Library/Preferences/ManagedInstalls AdditionalHttpHeaders -
     
       <item>
         <title>Unity Cache Server</title>
-        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
-&lt;p&gt;This is a marvelous service to have running. Especially when you are switching a lot between different platforms and working in a team. Developers and testers working on both iOS and Android builds waste logs of time when doing platform change. Some of this pain can be avoided with Unity Cache Server for Unity3d.&lt;/p&gt;
+        <description>&lt;p&gt;This is a marvelous service to have running. Especially when you are switching a lot between different platforms and working in a team. Developers and testers working on both iOS and Android builds waste logs of time when doing platform change. Some of this pain can be avoided with Unity Cache Server for Unity3d.&lt;/p&gt;
 
 &lt;p&gt;Since Unity Cache Server supports multiple OS installations including linux I choose to build a docker container. Container is built to use standard ports and if you want to change default settings just &lt;a href=&quot;https://github.com/erikaulin/docker-unitycacheserver&quot;&gt;clone&lt;/a&gt; the repo check the &lt;a href=&quot;http://docs.unity3d.com/Manual/CacheServer.html&quot;&gt;manual&lt;/a&gt; and edit configurations files and rebuild your own image. For additional official information check &lt;a href=&quot;http://blogs.unity3d.com/2012/10/26/in-depth-cache-server/&quot;&gt;In-depth cache server&lt;/a&gt;.&lt;/p&gt;
 
@@ -267,8 +267,7 @@ unitycacheserver      | Cache Server is ready&lt;/code&gt;&lt;/pre&gt;&lt;/figur
     
       <item>
         <title>Jenkins</title>
-        <description>&lt;h3 id=&quot;jenkins-master-in-docker&quot;&gt;Jenkins Master in Docker&lt;/h3&gt;
-&lt;p&gt;In this tutorial I will cover how to setup an Jenkins environment using docker. It will focus on a scenario where Nginx serves Jenkins app. This using the latest updates to docker network. We will make use of the autocreated bridge network that generates hostnames inside docker. This will let us serve internal host and port so we can upstream in nginx and we only need to expose nginx’s external port. Having nginx in place also let us adapt our scenarios if we need to use SSL certificates.&lt;/p&gt;
+        <description>&lt;p&gt;In this tutorial I will cover how to setup an Jenkins environment using docker. It will focus on a scenario where Nginx serves Jenkins app. This using the latest updates to docker network. We will make use of the autocreated bridge network that generates hostnames inside docker. This will let us serve internal host and port so we can upstream in nginx and we only need to expose nginx’s external port. Having nginx in place also let us adapt our scenarios if we need to use SSL certificates.&lt;/p&gt;
 
 &lt;h5 id=&quot;highlights&quot;&gt;Highlights&lt;/h5&gt;
 
@@ -329,11 +328,12 @@ services:
 
 &lt;p&gt;You edit the default setup of Jenkins by making changes to conf/jenkins-master.env.&lt;/p&gt;
 
-&lt;p&gt;Update these to your default configuration.&lt;/p&gt;
-
-&lt;p&gt;JENKINS_ADMIN_USER&lt;br /&gt;
-JENKINS_ADMIN_PASSWORD
-JENKINS_PLUGINS&lt;/p&gt;
+&lt;h5 id=&quot;update-these-to-your-default-configuration&quot;&gt;Update these to your default configuration.&lt;/h5&gt;
+&lt;ul&gt;
+  &lt;li&gt;JENKINS_ADMIN_USER&lt;/li&gt;
+  &lt;li&gt;JENKINS_ADMIN_PASSWORD&lt;/li&gt;
+  &lt;li&gt;JENKINS_PLUGINS&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;JENKINS_MASTER_EXECUTORS is set to 0 as you will use build nodes to execute builds.&lt;/p&gt;
 
@@ -369,7 +369,11 @@ JENKINS_PLUGINS&lt;/p&gt;
 
 &lt;p&gt;With &lt;a href=&quot;https://docs.docker.com/engine/userguide/networking/&quot;&gt;docker network&lt;/a&gt; and using version 2 with docker-compose  it automatically creates a bridge network and generates hostnames internally in docker. Then you only need to expose the port for nginx and the upstream uses container names. If you need to make updates don’t forget to check nginx/jenkins.conf so it matches.&lt;/p&gt;
 
-&lt;p&gt;Now you are ready to spin up the containers using | docker-compose up -d | and use your favorite browser to manage your jenkins. If you don’t know the docker machine IP use | docker-machine ip jenkins |.
+&lt;p&gt;Now you are ready to spin up the containers using&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; docker-compose up -d &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;and use your favorite browser to manage your jenkins. If you don’t know the docker machine IP use&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; docker-machine ip jenkins &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;.
 Hoped this guide helped you or just inspired you to make something of your own.&lt;/p&gt;
 
 &lt;p&gt;Cheers Erik&lt;/p&gt;
@@ -383,8 +387,7 @@ Hoped this guide helped you or just inspired you to make something of your own.&
     
       <item>
         <title>Crashplan PROe</title>
-        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
-&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in &lt;a href=&quot;https://www.docker.com&quot;&gt;Docker&lt;/a&gt; container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.
+        <description>&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in &lt;a href=&quot;https://www.docker.com&quot;&gt;Docker&lt;/a&gt; container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.
 Repo can be found at &lt;a href=&quot;https://github.com/erikaulin/docker-crashplanproserver&quot;&gt;Github&lt;/a&gt; and Image at &lt;a href=&quot;https://hub.docker.com/r/erikaulin/crashplanproe&quot;&gt;Docker HUB&lt;/a&gt;.
 ***
 ### Prerequisites
@@ -481,8 +484,7 @@ Fill in a name and location /opt/backup_destination
     
       <item>
         <title>Munki with SSL using Docker</title>
-        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
-&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using &lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;. Most guides out there use &lt;a href=&quot;https://www.chef.io&quot;&gt;Chef&lt;/a&gt; or &lt;a href=&quot;https://puppetlabs.com&quot;&gt;Puppet&lt;/a&gt; to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.&lt;/p&gt;
+        <description>&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using &lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;. Most guides out there use &lt;a href=&quot;https://www.chef.io&quot;&gt;Chef&lt;/a&gt; or &lt;a href=&quot;https://puppetlabs.com&quot;&gt;Puppet&lt;/a&gt; to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -600,8 +602,7 @@ sudo defaults write /Library/Preferences/ManagedInstalls UseClientCertificate -b
     
       <item>
         <title>VMware-Fusion Docker-machine</title>
-        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
-&lt;p&gt;In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.
+        <description>&lt;p&gt;In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.
 ***&lt;/p&gt;
 
 &lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h3&gt;

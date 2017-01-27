@@ -5,9 +5,7 @@ description: Munki with a twist of cloud
 keywords: erik aulin,blog,osx,docker,munki,vmware,ustwo,development,ssl
 ---
 
-### Introduction
 In this tutorial I will cover how to setup an [Munki](https://www.munki.org/munki) environment in the cloud. OSX clients will use a HTTP header Array to authenticate towards an dockerized nginx-s3-proxy that will serve repo hosted on AWS S3.
-
 
 ***
 
@@ -69,6 +67,8 @@ Here are two example policies with RW and RO. Change arn:aws:s3:::munki-repo and
         }
     ]
 }
+{% endhighlight %}
+{% highlight bash %}
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -102,14 +102,16 @@ Here are two example policies with RW and RO. Change arn:aws:s3:::munki-repo and
 }
 {% endhighlight %}
 
-###### What about repo content?
+#### What about repo content?
 There are many ways to store the your local repository. If you are using ex. Synology NAS you could use Cloud Sync. OSX have several GUI applications you can use ex. Mountain Duck.
 
 I use AWS CLI to sync local repo with S3 bucket using command line. AWS CLI can be installed using Brew {% highlight bash %}brew install awscli{% endhighlight %} then run {% highlight bash %}aws configure{% endhighlight %} I recommend you setup both your admin machine and osx server.
 
-On your server use the RWAccessKeyID and RWSecretAccessKey you created for {% highlight bash %}aws configure{% endhighlight %} then you can sync using {% highlight bash %}aws s3 sync . s3://munki-repo{% endhighlight %} where you change s3://munki-repo to match your s3 bucket and the content will be uploaded.
-Docker time?
+On your server use the same RWAccessKeyID and RWSecretAccessKey to setup aws configure and you are ready to run {% highlight bash %}aws s3 sync . s3://munki-repo{% endhighlight %} where you change s3://munki-repo to match your s3 bucket and the content will be uploaded.
 
+***
+
+### Docker
 
 I have been using docker-machine to generate EC2 images. AWS has their own service called Amazon EC2 Container Service (ECS) so might update my guide at a later point.
 
@@ -145,26 +147,36 @@ You are now ready to start the container and you need to use some of the credent
 If you are using AWS EC2 for you docker-machine you can open ports using AWC CLI. First you need to find the machines GroupId. Then open the port you chose in your container.
 {% highlight bash %}
 git clone --recursive https://github.com/erikaulin/docker-s3proxy.git
+{% endhighlight %}
 
+{% highlight bash %}
 htpasswd -c .htpasswd USERNAME
+{% endhighlight %}
 
+{% highlight bash %}
 docker build -t s3proxy .
+{% endhighlight %}
 
+{% highlight bash %}
 docker run --name s3proxy
   -e S3PROXY_BUCKET_NAME="munki-repo"
   -e S3PROXY_AWS_ACCESS_KEY="ROAccessKeyID"
   -e S3PROXY_AWS_SECRET_KEY="ROSecretAccessKey"
   -p 60080:80
   -d s3proxy
+{% endhighlight %}
 
+{% highlight bash %}
 aws ec2 describe-instances | grep GroupId
+{% endhighlight %}
 
+{% highlight bash %}
 aws ec2 authorize-security-group-ingress --group-id sg-cd00xxx0 --protocol tcp --port 60080 --cidr 0.0.0.0/0
 {% endhighlight %}
 
 ***
 
-#### Munki Client
+### Munki Client
 Now we are ready to start using your munki repo in the cloud. You need to generate a HTTP Headers Array based on the USERNAME and PASSWORD. Using the python command you can generate this just change the details and run. Now you just need a IP or DNS record to the docker-machine. In my case I created a A record.
 
 With these two commands your can update your clients to use the new URL add activate the use of HTTP Header array.
