@@ -5,7 +5,6 @@ description: Unity Cache Server using Docker
 keywords: erik,aulin,blog,unity3d,docker,development
 ---
 
-### Introduction
 This is a marvelous service to have running. Especially when you are switching a lot between different platforms and working in a team. Developers and testers working on both iOS and Android builds waste logs of time when doing platform change. Some of this pain can be avoided with Unity Cache Server for Unity3d.
 
 Since Unity Cache Server supports multiple OS installations including linux I choose to build a docker container. Container is built to use standard ports and if you want to change default settings just [clone](https://github.com/erikaulin/docker-unitycacheserver) the repo check the [manual](http://docs.unity3d.com/Manual/CacheServer.html) and edit configurations files and rebuild your own image. For additional official information check [In-depth cache server](http://blogs.unity3d.com/2012/10/26/in-depth-cache-server/).

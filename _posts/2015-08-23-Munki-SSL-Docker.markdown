@@ -5,7 +5,6 @@ description: Munki with SSL client Authentication using docker .
 keywords: erik aulin,blog,osx,docker,munki,vmware,ustwo,development,ssl
 ---
 
-### Introduction
 In this tutorial I will cover how to setup an [Munki](https://www.munki.org/munki) environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using [Autopkgr](https://github.com/lindegroup/autopkgr). Most guides out there use [Chef](https://www.chef.io) or [Puppet](https://puppetlabs.com) to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.
 
 ***

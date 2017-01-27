@@ -5,7 +5,6 @@ description: How to setup CrashPlan PROe server on a synology box using Docker,
 keywords: erik aulin,blog,crashplan,code42,ustwo,development,synology,docker
 ---
 
-### Introduction
 In this tutorial I will cover how to setup a [CrashPlan](http://www.code42.com/products/crashplan) PROE server hosted in [Docker](https://www.docker.com) container running on a [Synology](https://www.synology.com/en-global).
 Repo can be found at [Github](https://github.com/erikaulin/docker-crashplanproserver) and Image at [Docker HUB](https://hub.docker.com/r/erikaulin/crashplanproe).
 ***

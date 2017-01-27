@@ -5,7 +5,6 @@ description: Setup a VMware-Fusion docker-machine lab environment.
 keywords: erik aulin,blog,osx,docker,vmware,ustwo,development,server,lab,fusion
 ---
 
-### Introduction
 In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.
 ***
 

@@ -5,7 +5,6 @@ description: Jenkins in docker
 keywords: erik,aulin,blog,docker,jenkins,ci,development
 ---
 
-### Jenkins Master in Docker
 In this tutorial I will cover how to setup an Jenkins environment using docker. It will focus on a scenario where Nginx serves Jenkins app. This using the latest updates to docker network. We will make use of the autocreated bridge network that generates hostnames inside docker. This will let us serve internal host and port so we can upstream in nginx and we only need to expose nginx’s external port. Having nginx in place also let us adapt our scenarios if we need to use SSL certificates.
 
 ##### Highlights
@@ -59,11 +58,10 @@ services:
 
 You edit the default setup of Jenkins by making changes to conf/jenkins-master.env.
 
-Update these to your default configuration.
-
-JENKINS_ADMIN_USER  
-JENKINS_ADMIN_PASSWORD
-JENKINS_PLUGINS
+##### Update these to your default configuration.
+* JENKINS_ADMIN_USER  
+* JENKINS_ADMIN_PASSWORD
+* JENKINS_PLUGINS
 
 JENKINS_MASTER_EXECUTORS is set to 0 as you will use build nodes to execute builds.
 
@@ -101,7 +99,7 @@ LOG_FILE=
 
 With [docker network](https://docs.docker.com/engine/userguide/networking/) and using version 2 with docker-compose  it automatically creates a bridge network and generates hostnames internally in docker. Then you only need to expose the port for nginx and the upstream uses container names. If you need to make updates don't forget to check nginx/jenkins.conf so it matches.
 
-Now you are ready to spin up the containers using | docker-compose up -d | and use your favorite browser to manage your jenkins. If you don't know the docker machine IP use | docker-machine ip jenkins |.
+Now you are ready to spin up the containers using {% highlight bash %} docker-compose up -d {% endhighlight %} and use your favorite browser to manage your jenkins. If you don't know the docker machine IP use {% highlight bash %} docker-machine ip jenkins {% endhighlight %}.
 Hoped this guide helped you or just inspired you to make something of your own.
 
 Cheers Erik
