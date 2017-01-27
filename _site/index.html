@@ -1,122 +1,263 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
+  <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
   <title>Aulin</title>
-  <link rel="shortcut icon" href="/assets/images/favicon.ico">
-  <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="alternate" type="application/rss+xml" title="My Blog" href="/rss.xml">
-  <link rel="stylesheet" href="/assets/css/highlight.css">
+  <meta name="description" content="Blog about tech stuff">
+  <meta name="author" content="Erik AULIN">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Aulin">
+  <meta name="twitter:description" content="Blog about tech stuff">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Aulin">
+  <meta property="og:description" content="Blog about tech stuff">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/images/favicons/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/images/favicons/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/favicons/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicons/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/favicons/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/images/favicons/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/favicons/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon-180x180.png">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-194x194.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="/images/favicons/android-chrome-192x192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/images/favicons/manifest.json">
+  <link rel="shortcut icon" href="/images/favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-TileImage" content="/images/favicons/mstile-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://aulin.co//">
+  <link rel="alternate" type="application/rss+xml" title="Aulin" href="/feed.xml">
 </head>
-<body>
 
-  <nav class="main-nav">
-    
 
+  <body>
+    <span class="mobile btn-mobile-menu">
+  <i class="icon icon-list btn-mobile-menu__icon"></i>
+  <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+</span>
+  
+<header class="panel-cover" style="background-image: url(/images/cover.jpg)">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <a href="/" title="link to home of Aulin">
+          <img src="/images/profile.png" class="user-image" alt="My Profile Photo">
+          <h1 class="panel-cover__title panel-title">Aulin</h1>
+        </a>
+        <hr class="panel-cover__divider">
+        <p class="panel-cover__description">Blog about tech stuff</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary">
+
+        <div class="navigation-wrapper">
+
+          <nav class="cover-navigation cover-navigation--primary">
+            <ul class="navigation">
+              <li class="navigation__item"><a href="/#blog" title="link to Aulin blog" class="blog-button">Blog</a></li>
+            </ul>
+          </nav>
+
+          <nav class="cover-navigation navigation--social">
+            <ul class="navigation">
+          
+            
+              <!-- Twitter -->
+              <li class="navigation__item">
+                <a href="http://twitter.com/erikrpm" title="@erikrpm on Twitter" target="_blank">
+                  <i class="icon icon-social-twitter"></i>
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+            
+
+            
+              <!-- Facebook -->
+              <li class="navigation__item">
+                <a href="http://fb.me/erikaulin" title="erikaulin on Facebook" target="_blank">
+                  <i class="icon icon-social-facebook"></i>
+                  <span class="label">Facebook</span>
+                </a>
+              </li>
+            
+
+            
+              <!-- LinkedIn -->
+              <li class="navigation__item">
+                <a href="https://www.linkedin.com/in/erikaulin" title="erikaulin on LinkedIn" target="_blank">
+                  <i class="icon icon-social-linkedin"></i>
+                  <span class="label">LinkedIn</span>
+                </a>
+              </li>
+            
+
+            
+              <!-- GitHub -->
+              <li class="navigation__item">
+                <a href="https://www.github.com/erikaulin" title="erikaulin on GitHub" target="_blank">
+                  <i class="icon icon-social-github"></i>
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+            
+
+            
+              <!-- Email -->
+              <li class="navigation__item">
+                <a href="mailto:erik@aulin.co" title="Email erik@aulin.co" target="_blank">
+                  <i class="icon icon-mail"></i>
+                  <span class="label">Email</span>
+                </a>
+              </li>
+            
+
+            <!-- RSS -->
+            <li class="navigation__item">
+              <a href="/feed.xml" title="Subscribe" target="_blank">
+                <i class="icon icon-rss"></i>
+                <span class="label">RSS</span>
+              </a>
+            </li>
+          
+            </ul>
+          </nav>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel-cover--overlay"></div>
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+      <div class="content-wrapper__inner">
+        <div class="main-post-list">
+
+  <ol class="post-list">
     
-        
-            <a href='/about'>About </a>
-        
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2016/Munki/" title="Munki">Munki</a></h2>
+        <p class="excerpt"><h3 id="introduction">Introduction</h3>
+In this tutorial I will cover how to setup an <a href="https://www.munki.org/munki">Munki</a> environment in the cloud. OSX clients will use a HTTP header Array to authenticate towards an dockerized nginx-s3-proxy that will serve repo hosted on AWS S3.
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="17 May 2016" class="post-list__meta--date date">17 May 2016</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
     
-    <a class="cta" href="/feed.xml">Subscribe</a>
-</nav>
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2016/Unity-Cache-Server/" title="Unity Cache Server">Unity Cache Server</a></h2>
+        <p class="excerpt"><h3 id="introduction">Introduction</h3>
+This is a marvelous service to have running. Especially when you are switching a lot between different platforms and working in a team. Developers and testers working on both iOS and Android builds waste logs of time when doing platform change. Some of this pain can be avoided with Unity Cache Server for Unity3d.
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="16 May 2016" class="post-list__meta--date date">16 May 2016</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2016/Jenkins/" title="Jenkins">Jenkins</a></h2>
+        <p class="excerpt"><h3 id="jenkins-master-in-docker">Jenkins Master in Docker</h3>
+In this tutorial I will cover how to setup an Jenkins environment using docker. It will focus on a scenario where Nginx serves Jenkins app. This using the latest updates to docker network. We will make use of the autocreated bridge network that generates hostnames inside docker. This will let us serve internal host and port so we can upstream in nginx and we only need to expose nginx’s external port. Having nginx in place also let us adapt our scenarios if we need to use SSL certificates.
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="16 May 2016" class="post-list__meta--date date">16 May 2016</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2015/CrashPlanPROe/" title="Crashplan PROe">Crashplan PROe</a></h2>
+        <p class="excerpt"><h3 id="introduction">Introduction</h3>
+In this tutorial I will cover how to setup a <a href="http://www.code42.com/products/crashplan">CrashPlan</a> PROE server hosted in <a href="https://www.docker.com">Docker</a> container running on a <a href="https://www.synology.com/en-global">Synology</a>.
+Repo can be found at <a href="https://github.com/erikaulin/docker-crashplanproserver">Github</a> and Image at <a href="https://hub.docker.com/r/erikaulin/crashplanproe">Docker HUB</a>.
+***
+### Prerequisites
+* <a href="https://www.synology.com/en-us/products">Synology hardware</a>.
+* 1gb of free RAM
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="15 Sep 2015" class="post-list__meta--date date">15 Sep 2015</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2015/Munki-SSL-Docker/" title="Munki with SSL using Docker">Munki with SSL using Docker</a></h2>
+        <p class="excerpt"><h3 id="introduction">Introduction</h3>
+In this tutorial I will cover how to setup an <a href="https://www.munki.org/munki">Munki</a> environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using <a href="https://github.com/lindegroup/autopkgr">Autopkgr</a>. Most guides out there use <a href="https://www.chef.io">Chef</a> or <a href="https://puppetlabs.com">Puppet</a> to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="28 Aug 2015" class="post-list__meta--date date">28 Aug 2015</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2015/VMware-Fusion/" title="VMware-Fusion Docker-machine">VMware-Fusion Docker-machine</a></h2>
+        <p class="excerpt"><h3 id="introduction">Introduction</h3>
+In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.
+***
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="23 Aug 2015" class="post-list__meta--date date">23 Aug 2015</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2015/AWS-tips-and-trix/" title="AWS day to day">AWS day to day</a></h2>
+        <p class="excerpt">I love working from the console and aws-cli could be your best friend.
+Guide how to install this on you system can be found on [Getting Set Up with the AWS Command Line Interface] (http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html).
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="6 Aug 2015" class="post-list__meta--date date">6 Aug 2015</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+      <li>
+        <h2 class="post-list__post-title post-title"><a href="/2015/ESXi-Upgrade5-5to6-0/" title="Upgrade ESXi from 5.5 to 6">Upgrade ESXi from 5.5 to 6</a></h2>
+        <p class="excerpt">It was time to upgrade my macmini’s running vmware ESXi 5.5 to 6.
+Since I didn’t want to hazzel with ISO’s and do it from the comfort of my desk I chose to do it via SSH and esxcli.
+
+&hellip;</p>
+        <div class="post-list__meta"><time datetime="6 Aug 2015" class="post-list__meta--date date">6 Aug 2015</time> &#8226; <span class="post-meta__tags">on </span></div>
+        <hr class="post-list__divider">
+      </li>
+    
+  </ol>
+
+  <hr class="post-list__divider ">
 
   
-      <div class="profile">
-    <section id="wrapper">
-        <header id="header">
-            <a href='/about'>
-                <img id="avatar" class="2x" src="/assets/images/avatar.png"/>
-            </a>
-            <h1>Erik Aulin</h1>
-            <h2>Blog about tech stuff</h2>
-        </header>
-    </section>
+
 </div>
-  
+      </div>
 
-  <section id="wrapper" class="home">
-    <ul id="post-list">
-    
-        <li>
-            <a href='/2015/CrashPlanPROe/'><aside class="dates">Sep 15</aside></a>
-            <a href='/2015/CrashPlanPROe/'>Crashplan PROe <h2>How to setup CrashPlan PROe server on a synology box using Docker,</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/Munki-SSL-Docker/'><aside class="dates">Aug 28</aside></a>
-            <a href='/2015/Munki-SSL-Docker/'>Munki with SSL using Docker <h2>Munki with SSL client Authentication using docker .</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/VMware-Fusion/'><aside class="dates">Aug 23</aside></a>
-            <a href='/2015/VMware-Fusion/'>VMware-Fusion Docker-machine <h2>Setup a VMware-Fusion docker-machine lab environment.</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/2015-08-28-Munki-S3-Nginx-Proxy/'><aside class="dates">Aug 23</aside></a>
-            <a href='/2015/2015-08-28-Munki-S3-Nginx-Proxy/'>Munki with SSL <h2>Setup a Munki environment with docker .</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/2015-09-23-Dockers-tips-and-trix/'><aside class="dates">Aug 23</aside></a>
-            <a href='/2015/2015-09-23-Dockers-tips-and-trix/'>Dockers <h2>Dockers in you day to day work.</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/random-stuff/'><aside class="dates">Aug 11</aside></a>
-            <a href='/2015/random-stuff/'>random <h2>random stuff.</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/Travis-CI_and_HockeyApp/'><aside class="dates">Aug 07</aside></a>
-            <a href='/2015/Travis-CI_and_HockeyApp/'>Travis-ci and HockeyApp <h2>How to automate your build process using Travis-Ci and HockeyApp.</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/s3restapi/'><aside class="dates">Aug 07</aside></a>
-            <a href='/2015/s3restapi/'>restapis3 <h2>rest api restore</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/Synology-DNS/'><aside class="dates">Aug 07</aside></a>
-            <a href='/2015/Synology-DNS/'>Synology DNS <h2>Setup a local DNS server on your synology.</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/AWS-tips-and-trix/'><aside class="dates">Aug 06</aside></a>
-            <a href='/2015/AWS-tips-and-trix/'>AWS day to day <h2>AWS in you day to day work</h2></a>
-        </li>
-    
-        <li>
-            <a href='/2015/ESXi-Upgrade5-5to6-0/'><aside class="dates">Aug 06</aside></a>
-            <a href='/2015/ESXi-Upgrade5-5to6-0/'>Upgrade ESXi from 5.5 to 6 <h2>Macmini's need an upgrade from ESXi 5.5 to 6 using SSH and esxcli</h2></a>
-        </li>
-    
-</ul>
+      <footer class="footer">
+  <span class="footer__copyright">&copy; 2017 Erik AULIN. All rights reserved.</span>
+</footer> 
 
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
 
-<footer id="footer">
-    <p class="small">© Copyright 2015 Erik Aulin</p>
-</footer>
-  </section>
-
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="/assets/js/main.js"></script>
-  <script src="/assets/js/highlight.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
-
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-66017649-1', 'auto');
-    ga('send', 'pageview');
-  </script>
-</body>
+    </div>
+  </body>
 </html>

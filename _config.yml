@@ -1,42 +1,39 @@
-name: Aulin
+# Site settings
+title: Aulin
 description: Blog about tech stuff
-meta_description: "Erik Aulin, Blog about tech stuff I do"
-
-aboutPage: true
-
-markdown: redcarpet
-highlighter: pygments
-
-paginate: 20
+url: 'http://aulin.co'
 baseurl: /
-domain_name: 'http://aulin.co'
-google_analytics: 'UA-66017649-1'
-disqus: false
-disqus_shortname: 'airikr'
+# google_analytics: 'UA-XXXXXX-X'
+# disqus_shortname: 'your-disqus-name'
 
-# Details for the RSS feed generator
-url:            'http://aulin.co'
-author:         'Erik Aulin'
-authorTwitter:  'erikrpm'
-
-permalink:       /:year/:title/
+author:
+  name: 'Erik AULIN'
+  email: erik@aulin.co
+  twitter_username: erikrpm
+  facebook_username: erikaulin
+  github_username:  erikaulin
+  linkedin_username:  erikaulin
 
 defaults:
-    -
-        scope:
-            path: "" # empty string for all files
-            type: pages
-        values:
-            layout: default
-    -
-        scope:
-            path: "" # empty string for all files
-            type: posts
-        values:
-            layout: post
-    -
-        scope:
-            path: ""
-            type: drafts
-        values:
-            layout: post
+  -
+    scope:
+      path: ''
+      type: 'posts'
+    values:
+        layout: 'post'
+
+# Build settings
+destination: _site
+paginate: 10
+permalink: /:year/:title/
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  # use Github Flavored Markdown
+  input: GFM
+  # do not replace newlines by <br>s
+  hard_wrap: false
+
+gems: ['jekyll-paginate']
+exclude: ['README.md', 'Gemfile', 'Gemfile.lock', 'screenshot.png']

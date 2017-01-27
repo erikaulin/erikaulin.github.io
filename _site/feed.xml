@@ -1,142 +1,755 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Aulin</title>
     <description>Blog about tech stuff</description>
-    <link>http://erikaulin.github.io</link>
-    <atom:link href="http://erikaulin.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <link>http://aulin.co//</link>
+    <atom:link href="http://aulin.co//feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Fri, 27 Jan 2017 15:18:28 +0100</pubDate>
+    <lastBuildDate>Fri, 27 Jan 2017 15:18:28 +0100</lastBuildDate>
+    <generator>Jekyll v3.0.2</generator>
+    
+      <item>
+        <title>Munki</title>
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment in the cloud. OSX clients will use a HTTP header Array to authenticate towards an dockerized nginx-s3-proxy that will serve repo hosted on AWS S3.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h3&gt;
+&lt;p&gt;I take for granted that you have a local munki repo running in your internal environment. You have basic understanding of Docker and AWS. I also expect you to have an AWS account and know how to create s3 buckets and setup additional IAM users and policies.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;tools&quot;&gt;Tools&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/hjuutilainen/munkiadmin/releases/&quot;&gt;MunkiAdmin&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;lets-get-started&quot;&gt;Lets get started&lt;/h3&gt;
+&lt;p&gt;Lets start with AWS and create a bucket and IAM users and policies.&lt;/p&gt;
+
+&lt;p&gt;I chose to use Ireland (eu-west-1) to create a bucket called munki-repo. This will serve as the cloud based storage and where munki clients will pull its information.&lt;/p&gt;
+
+&lt;p&gt;There is a issue with Frankfurt (eu-central-1) that requires AWS4-HMAC-SHA256 and this is not supported by NGX_AWS_AUTH plugin.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/munki/Screen-Shot-2016-02-04-at-19.42.55-1024x525.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I recommend two IAM users one with RW (read-and-write) policy that will be used on the local munki repo host so it to be able to push and remove information. Second user will be a RO (read-only) used by docker container to serve the interface to the s3 bucket.&lt;/p&gt;
+
+&lt;p&gt;Here are two example policies with RW and RO. Change arn:aws:s3:::munki-repo and arn:aws:s3:::munki-repo/* to match your S3 bucket.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;Version&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;2012-10-17&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;Statement&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Effect&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Allow&quot;&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Action&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:GetBucketLocation&quot;&lt;/span&gt;,
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:ListAllMyBuckets&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Resource&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;arn:aws:s3:::*&quot;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Effect&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Allow&quot;&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Action&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:ListBucket&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Resource&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;arn:aws:s3:::munki-repo&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Effect&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Allow&quot;&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Action&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:PutObject&quot;&lt;/span&gt;,
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:GetObject&quot;&lt;/span&gt;,
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:DeleteObject&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Resource&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;arn:aws:s3:::munki-repo/*&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;Version&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;2012-10-17&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;Statement&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Effect&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Allow&quot;&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Action&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:GetBucketLocation&quot;&lt;/span&gt;,
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:ListAllMyBuckets&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Resource&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;arn:aws:s3:::*&quot;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Effect&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Allow&quot;&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Action&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:ListBucket&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Resource&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;arn:aws:s3:::munki-repo&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s2&quot;&gt;&quot;Effect&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Allow&quot;&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Action&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;s3:GetObject&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+            &lt;span class=&quot;s2&quot;&gt;&quot;Resource&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;arn:aws:s3:::munki-repo/*&quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;what-about-repo-content&quot;&gt;What about repo content?&lt;/h6&gt;
+&lt;p&gt;There are many ways to store the your local repository. If you are using ex. Synology NAS you could use Cloud Sync. OSX have several GUI applications you can use ex. Mountain Duck.&lt;/p&gt;
+
+&lt;p&gt;I use AWS CLI to sync local repo with S3 bucket using command line. AWS CLI can be installed using Brew&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;brew install awscli&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;then run&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws configure&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;I recommend you setup both your admin machine and osx server.&lt;/p&gt;
+
+&lt;p&gt;On your server use the RWAccessKeyID and RWSecretAccessKey you created for&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws configure&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;then you can sync using&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws s3 sync . s3://munki-repo&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;where you change s3://munki-repo to match your s3 bucket and the content will be uploaded.
+Docker time?&lt;/p&gt;
+
+&lt;p&gt;I have been using docker-machine to generate EC2 images. AWS has their own service called Amazon EC2 Container Service (ECS) so might update my guide at a later point.&lt;/p&gt;
+
+&lt;p&gt;When you create your EC2 image using docker-machine you need a IAM user with EC2 policy. You also need to specify under which VPC ID you want your machine.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker-machine create
+      --driver amazonec2
+      --amazonec2-access-key EC2AccessKeyID
+      --amazonec2-instance-type t2.micro
+      --amazonec2-region eu-central-1
+      --amazonec2-zone a
+      --amazonec2-secret-key EC2SecretAccessKey
+      --amazonec2-vpc-id vpc-0aa000aa
+      --engine-label &lt;span class=&quot;nv&quot;&gt;project_name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;docker-services-s3proxy
+      --engine-label &lt;span class=&quot;nv&quot;&gt;tier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;production
+      --engine-opt log-driver&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;syslog
+      --engine-storage-driver devicemapper
+      docker-services-s3proxy
+
+&lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;docker-machine env docker-services&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+s3proxy docker container&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;It’s time to clone a base repo. Because we want to add our security methods like Basic Authentication. You will also have the possibilities to configure nginx.conf to use SSL Client Certificates.&lt;/p&gt;
+
+&lt;p&gt;Using git clone –recursive also pulls nginx plugins lua-nginx-module, ngx_aws_auth and ngx_devel_kit using gitmodules.&lt;/p&gt;
+
+&lt;p&gt;Once repo is cloned you need to create your .htpasswd file. Change USERNAME and PASSWORD to something appropriate I recommend using a phrase or a quote from your favorite book or movie ex. iseeyourschwartzisasbigasmine. These will be used later in the munki client configuration.&lt;/p&gt;
+
+&lt;p&gt;You are now ready to start the container and you need to use some of the credentials and keys created. You also need to choose a port to use. It should look something like 60080:80 where the high number is the port munki client will use.&lt;/p&gt;
+
+&lt;p&gt;If you are using AWS EC2 for you docker-machine you can open ports using AWC CLI. First you need to find the machines GroupId. Then open the port you chose in your container.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git clone --recursive https://github.com/erikaulin/docker-s3proxy.git
+
+htpasswd -c .htpasswd USERNAME
+
+docker build -t s3proxy .
+
+docker run --name s3proxy
+  -e &lt;span class=&quot;nv&quot;&gt;S3PROXY_BUCKET_NAME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;munki-repo&quot;&lt;/span&gt;
+  -e &lt;span class=&quot;nv&quot;&gt;S3PROXY_AWS_ACCESS_KEY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ROAccessKeyID&quot;&lt;/span&gt;
+  -e &lt;span class=&quot;nv&quot;&gt;S3PROXY_AWS_SECRET_KEY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ROSecretAccessKey&quot;&lt;/span&gt;
+  -p 60080:80
+  -d s3proxy
+
+aws ec2 describe-instances | grep GroupId
+
+aws ec2 authorize-security-group-ingress --group-id sg-cd00xxx0 --protocol tcp --port 60080 --cidr 0.0.0.0/0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;munki-client&quot;&gt;Munki Client&lt;/h4&gt;
+&lt;p&gt;Now we are ready to start using your munki repo in the cloud. You need to generate a HTTP Headers Array based on the USERNAME and PASSWORD. Using the python command you can generate this just change the details and run. Now you just need a IP or DNS record to the docker-machine. In my case I created a A record.&lt;/p&gt;
+
+&lt;p&gt;With these two commands your can update your clients to use the new URL add activate the use of HTTP Header array.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;python -c &lt;span class=&quot;s1&quot;&gt;&#39;import base64; print &quot;Authorization: Basic %s&quot; % base64.b64encode(&quot;USERNAME:PASSWORD”)&#39;&lt;/span&gt;
+
+sudo defaults write /Library/Preferences/ManagedInstalls SoftwareRepoURL &lt;span class=&quot;s2&quot;&gt;&quot;http://munki.aulin.co:60080&quot;&lt;/span&gt;
+sudo defaults write /Library/Preferences/ManagedInstalls AdditionalHttpHeaders -array &lt;span class=&quot;s2&quot;&gt;&quot;Authorization: Basic bsfaJSdsfadsfaadfJFADAFADddaa==&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Good luck and hope this guide could help or just inspire your.&lt;/p&gt;
+
+&lt;p&gt;Cheers Erik&lt;/p&gt;
+</description>
+        <pubDate>Tue, 17 May 2016 21:49:00 +0200</pubDate>
+        <link>http://aulin.co//2016/Munki/</link>
+        <guid isPermaLink="true">http://aulin.co//2016/Munki/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Unity Cache Server</title>
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;This is a marvelous service to have running. Especially when you are switching a lot between different platforms and working in a team. Developers and testers working on both iOS and Android builds waste logs of time when doing platform change. Some of this pain can be avoided with Unity Cache Server for Unity3d.&lt;/p&gt;
+
+&lt;p&gt;Since Unity Cache Server supports multiple OS installations including linux I choose to build a docker container. Container is built to use standard ports and if you want to change default settings just &lt;a href=&quot;https://github.com/erikaulin/docker-unitycacheserver&quot;&gt;clone&lt;/a&gt; the repo check the &lt;a href=&quot;http://docs.unity3d.com/Manual/CacheServer.html&quot;&gt;manual&lt;/a&gt; and edit configurations files and rebuild your own image. For additional official information check &lt;a href=&quot;http://blogs.unity3d.com/2012/10/26/in-depth-cache-server/&quot;&gt;In-depth cache server&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;lets-get-started&quot;&gt;Lets get started&lt;/h3&gt;
+&lt;p&gt;There are many ways you use this service,  I chose to docker-compose to do it in this guide.&lt;/p&gt;
+
+&lt;p&gt;Unity Cache Server has a default cache roof set to 50gb of disk space. Keep this in mind when setting the the capacity on the docker engine host.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker-compose.yml
+unitycacheserver:
+  image: erikaulin/unitycacheserver:latest
+  container_name: unitycacheserver
+  ports:
+    - &lt;span class=&quot;s2&quot;&gt;&quot;8125:8125&quot;&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;# legacy port&lt;/span&gt;
+    - &lt;span class=&quot;s2&quot;&gt;&quot;8126:8126&quot;&lt;/span&gt;
+  volumes_from:
+    - volumes
+volumes:
+  image: busybox:latest
+  container_name: unitycacheserver_data
+  volumes:
+    &lt;span class=&quot;c&quot;&gt;# Main Directory&lt;/span&gt;
+    - /opt/cache
+    - /opt/cache5.0
+  &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt;: /bin/echo&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Moment of truth when you run docker-compose up -d it will pull the image from docker hub and create a two containers.&lt;/p&gt;
+
+&lt;p&gt;Unitycacheserver houses software and unitycacheserver_data the cached data that we want to be persistent. If all went well we should get log that looks like this in the end.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;unitycacheserver      | Starting Services
+unitycacheserver      | Cache Server directory /opt/cache
+unitycacheserver      | Cache Server size 0
+unitycacheserver      | Cache Server max cache size 53687091200
+unitycacheserver      | Cache Server directory /opt/cache5.0
+unitycacheserver      | Cache Server size 0
+unitycacheserver      | Cache Server max cache size 53687091200
+unitycacheserver      | Legacy Cache Server version 4.6
+unitycacheserver      | Legacy Cache Server on port 8125
+unitycacheserver      | Legacy Cache Server is ready
+unitycacheserver      | Cache Server version 5.3
+unitycacheserver      | Cache Server on port 8126
+unitycacheserver      | Cache Server is ready&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;unity3d&quot;&gt;Unity3d&lt;/h4&gt;
+
+&lt;p&gt;Setting up the Cache Server configuration couldn’t be easier. All you need to do is click Use Cache Server in the preferences and this can be found in Unity-&amp;gt;Preferences on the Mac or Edit-&amp;gt;Preferences on the PC.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity3d/CacheServerEnabled.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Thats it!&lt;/p&gt;
+
+&lt;p&gt;Hope you have use for it or just inspire you.&lt;/p&gt;
+
+&lt;p&gt;Cheers Erik&lt;/p&gt;
+</description>
+        <pubDate>Mon, 16 May 2016 21:49:00 +0200</pubDate>
+        <link>http://aulin.co//2016/Unity-Cache-Server/</link>
+        <guid isPermaLink="true">http://aulin.co//2016/Unity-Cache-Server/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Jenkins</title>
+        <description>&lt;h3 id=&quot;jenkins-master-in-docker&quot;&gt;Jenkins Master in Docker&lt;/h3&gt;
+&lt;p&gt;In this tutorial I will cover how to setup an Jenkins environment using docker. It will focus on a scenario where Nginx serves Jenkins app. This using the latest updates to docker network. We will make use of the autocreated bridge network that generates hostnames inside docker. This will let us serve internal host and port so we can upstream in nginx and we only need to expose nginx’s external port. Having nginx in place also let us adapt our scenarios if we need to use SSL certificates.&lt;/p&gt;
+
+&lt;h5 id=&quot;highlights&quot;&gt;Highlights&lt;/h5&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Host Jenkins on either on-prem or cloud.&lt;/li&gt;
+  &lt;li&gt;Manage build nodes using snapshots.&lt;/li&gt;
+  &lt;li&gt;Exponentially grow your build nodes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;lets-get-started&quot;&gt;Lets get started&lt;/h3&gt;
+&lt;p&gt;There are many ways you use  docker,  I chose to &lt;a href=&quot;http://docs.docker.com/machine/&quot;&gt;docker machine&lt;/a&gt; and &lt;a href=&quot;http://docs.docker.com/compose/&quot;&gt;docker-compose&lt;/a&gt; to do it in this guide.
+Creating a docker-machine&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker-machine create -d  jenkins&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;then&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;docker-machine env jenkins&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;now you are ready to use docker-compose.&lt;/p&gt;
+
+&lt;p&gt;Clone my &lt;a href=&quot;https://github.com/erikaulin/docker-jenkins&quot;&gt;repo&lt;/a&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;git clone https://github.com/erikaulin/docker-jenkins.git&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;p&gt;this contains all the different configurations files needed to get started.&lt;/p&gt;
+
+&lt;h5 id=&quot;most-important-files&quot;&gt;Most important files&lt;/h5&gt;
+&lt;ul&gt;
+  &lt;li&gt;docker-compose.yml&lt;/li&gt;
+  &lt;li&gt;conf/jenkins-master.env&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I chose to use Jenkins image from &lt;a href=&quot;https://hub.docker.com/r/blacklabelops/jenkins/&quot;&gt;Blacklabelops&lt;/a&gt; as it’s preloaded with Java and configured to use environment file.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker-compose.yml
+version: &lt;span class=&quot;s1&quot;&gt;&#39;2&#39;&lt;/span&gt;
+services:
+  jenkins:
+    image: blacklabelops/jenkins
+    container_name: jenkins
+    volumes_from:
+      - volumes
+    env_file:
+      - conf/jenkins-master.env
+  nginx:
+    container_name: nginx
+    build: ./nginx/
+    ports:
+      - &lt;span class=&quot;s2&quot;&gt;&quot;80:80&quot;&lt;/span&gt;
+  volumes:
+    image: busybox:latest
+    container_name: jenkins_data
+    volumes:
+      &lt;span class=&quot;c&quot;&gt;# Logging volumes&lt;/span&gt;
+      - /var/log
+      &lt;span class=&quot;c&quot;&gt;# Jenkins volume&lt;/span&gt;
+      - /jenkins
+    &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt;: chown -R 1000:1000 /var/log /jenkins&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;You edit the default setup of Jenkins by making changes to conf/jenkins-master.env.&lt;/p&gt;
+
+&lt;p&gt;Update these to your default configuration.&lt;/p&gt;
+
+&lt;p&gt;JENKINS_ADMIN_USER&lt;br /&gt;
+JENKINS_ADMIN_PASSWORD
+JENKINS_PLUGINS&lt;/p&gt;
+
+&lt;p&gt;JENKINS_MASTER_EXECUTORS is set to 0 as you will use build nodes to execute builds.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;conf/jenkins-master.env
+&lt;span class=&quot;c&quot;&gt;# Setting up the admin account and basic security&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;JENKINS_ADMIN_USER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;jenkins
+&lt;span class=&quot;nv&quot;&gt;JENKINS_ADMIN_PASSWORD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;p4ssw0rd
+&lt;span class=&quot;c&quot;&gt;# Specify the Java VM parameters&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# See: http://www.oracle.com/technetwork/articles/java/vmoptions-jsp-140102.html&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;JAVA_VM_PARAMETERS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;-Xmx1024m -Xms512m
+&lt;span class=&quot;c&quot;&gt;# Number of executors on Jenkins master.&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;JENKINS_MASTER_EXECUTORS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+&lt;span class=&quot;c&quot;&gt;# Whitespace separated list of required plugins.&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Example: gitlab-plugin hipchat swarm&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;JENKINS_PLUGINS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;swarm git unity3d-plugin github envinject log-parser simple-theme-plugin gravatar
+&lt;span class=&quot;c&quot;&gt;# Jenkins port for accepting swarm slave connections&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;JENKINS_SLAVEPORT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;50000
+&lt;span class=&quot;c&quot;&gt;# Jenkins startup parameters.&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# See: https://wiki.jenkins-ci.org/display/JENKINS/Starting+and+Accessing+Jenkins&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;JENKINS_PARAMETERS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Jenkins Mail Setup&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_USER_NAME=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_USER_PASS=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_HOST=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_PORT=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_REPLYTO_ADDRESS=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_USE_SSL=no&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#SMTP_CHARSET=&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Jenkins log file. Not necessary, because Jenkins logs to Docker.&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;LOG_FILE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;go-gadget-go&quot;&gt;Go gadget go&lt;/h3&gt;
+
+&lt;p&gt;With &lt;a href=&quot;https://docs.docker.com/engine/userguide/networking/&quot;&gt;docker network&lt;/a&gt; and using version 2 with docker-compose  it automatically creates a bridge network and generates hostnames internally in docker. Then you only need to expose the port for nginx and the upstream uses container names. If you need to make updates don’t forget to check nginx/jenkins.conf so it matches.&lt;/p&gt;
+
+&lt;p&gt;Now you are ready to spin up the containers using | docker-compose up -d | and use your favorite browser to manage your jenkins. If you don’t know the docker machine IP use | docker-machine ip jenkins |.
+Hoped this guide helped you or just inspired you to make something of your own.&lt;/p&gt;
+
+&lt;p&gt;Cheers Erik&lt;/p&gt;
+</description>
+        <pubDate>Mon, 16 May 2016 21:49:00 +0200</pubDate>
+        <link>http://aulin.co//2016/Jenkins/</link>
+        <guid isPermaLink="true">http://aulin.co//2016/Jenkins/</guid>
+        
+        
+      </item>
     
       <item>
         <title>Crashplan PROe</title>
-        
-        
-          <description>&lt;h3&gt;Introduction&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in &lt;a href=&quot;https://www.docker.com&quot;&gt;Docker&lt;/a&gt; container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.
+Repo can be found at &lt;a href=&quot;https://github.com/erikaulin/docker-crashplanproserver&quot;&gt;Github&lt;/a&gt; and Image at &lt;a href=&quot;https://hub.docker.com/r/erikaulin/crashplanproe&quot;&gt;Docker HUB&lt;/a&gt;.
+***
+### Prerequisites
+* &lt;a href=&quot;https://www.synology.com/en-us/products&quot;&gt;Synology hardware&lt;/a&gt;.
+* 1gb of free RAM&lt;/p&gt;
 
-&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;http://www.code42.com/products/crashplan&quot;&gt;CrashPlan&lt;/a&gt; PROE server hosted in &lt;a href=&quot;https://www.docker.com&quot;&gt;Docker&lt;/a&gt; container running on a &lt;a href=&quot;https://www.synology.com/en-global&quot;&gt;Synology&lt;/a&gt;.&lt;/p&gt;
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;get-started&quot;&gt;Get started&lt;/h3&gt;
+
+&lt;p&gt;First you need create the folder structure that will be used to expose the code42 data and make it accessible directly from synology shares.
+In this example I want to expose all folder that contain CrashPlan data, logs and use a specific backup destination.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_folders.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next you need to install the Docker Applications using Package Center.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_install.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;download-image-and-create-container&quot;&gt;Download image and create container.&lt;/h4&gt;
+
+&lt;p&gt;Start the Docker from menu and go to Registry search for &lt;em&gt;crashplanproe&lt;/em&gt; select it and click on Download.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_registry.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next go to Image and Launch dropdown menu select &lt;em&gt;Launch with wizard&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_image.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Choose a name for your Container and add &lt;a href=&quot;http://support.code42.com/Administrator/3/Planning_And_Installing/TCP_And_UDP_Ports&quot;&gt;ports&lt;/a&gt; needed.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_wizard.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Select CPU Priority level and optional shortcut on desktop.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_wizard2.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Before you hit Apply we need to set some Advanced Settings.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_wizard3.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now we get the option to specify what location should be exposed to the container.
+In this case you can use the folders we created. Once done hit OK and then Apply.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_volume.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;using-code42-crashplanproe-server&quot;&gt;Using Code42 CrashPlanPROe Server&lt;/h3&gt;
+
+&lt;h4 id=&quot;starting-the-container&quot;&gt;Starting the Container&lt;/h4&gt;
+
+&lt;p&gt;Now you can click Container and you should see the code42 container.
+If its not activated click the power on icon. This part will take a while as it will download the binary’s and setup a default environment.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_docker_container.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Once the service is up and running you can see that log files in the log folder you created.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_logs.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;configure-crash-plan-proe-services&quot;&gt;Configure Crash Plan PROe services.&lt;/h4&gt;
+
+&lt;p&gt;It’s time to configure the service. Head to the same IP as the synology but with https and port 4285.
+In my case &lt;code class=&quot;highlighter-rouge&quot;&gt;https://10.2.0.200:4285&lt;/code&gt;. Use the MasterKey or sign up for a trial.&lt;/p&gt;
+
+&lt;p&gt;Now go to &lt;em&gt;Settings &amp;gt; Server&lt;/em&gt; and change &lt;em&gt;Website protocol, host and port&lt;/em&gt; to your synology IP.
+You also need to configure &lt;em&gt;Primary network address&lt;/em&gt; that should be the same IP but with port 4282.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_network.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now got to &lt;em&gt;Destinations &amp;gt; Server&lt;/em&gt; and click the default server &amp;gt; cog &amp;gt; &lt;em&gt;Add Store Point&lt;/em&gt;.
+Fill in a name and location /opt/backup_destination
+&lt;img src=&quot;/images/code42/code42_server_storepoints.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next go to &lt;em&gt;Destinations &amp;gt; Server&lt;/em&gt; and click the default storage &amp;gt; cog &amp;gt; &lt;em&gt;Pause Incoming Data&lt;/em&gt; and &lt;em&gt;Reject New Archives&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_default_store.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Next go to &lt;em&gt;Destinations &amp;gt; Server&lt;/em&gt; and click the default storage &amp;gt; cog &amp;gt; &lt;em&gt;Accept Incoming Data&lt;/em&gt; and &lt;em&gt;Accept New Archives&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/code42/code42_new_store.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h3&gt;
+
+&lt;p&gt;Now the server is up and running and you can continue to configure the Code42 CrashPlanPROe server as it fits your needs.&lt;/p&gt;
+
+&lt;p&gt;Cheers!&lt;/p&gt;
 </description>
-        
         <pubDate>Tue, 15 Sep 2015 14:37:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/CrashPlanPROe/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/CrashPlanPROe/</guid>
+        <link>http://aulin.co//2015/CrashPlanPROe/</link>
+        <guid isPermaLink="true">http://aulin.co//2015/CrashPlanPROe/</guid>
+        
+        
       </item>
     
       <item>
         <title>Munki with SSL using Docker</title>
-        
-        
-          <description>&lt;h3&gt;Introduction&lt;/h3&gt;
-
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
 &lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using &lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;. Most guides out there use &lt;a href=&quot;https://www.chef.io&quot;&gt;Chef&lt;/a&gt; or &lt;a href=&quot;https://puppetlabs.com&quot;&gt;Puppet&lt;/a&gt; to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.apple.com/mac/&quot;&gt;Mac Computer&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.vmware.com/products/fusion&quot;&gt;VMWare Fusion&lt;/a&gt; or &lt;a href=&quot;https://www.virtualbox.org&quot;&gt;Virtualbox&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.docker.com/toolbox&quot;&gt;Docker Toolbox&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.docker.com/machine&quot;&gt;Virtual Docker&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://kb.vmware.com/selfservice/search.do?cmd=displayKC&amp;amp;docType=kc&amp;amp;docTypeID=DT_KB_1_1&amp;amp;externalId=2082109#&quot;&gt;Virtual OSX&lt;/a&gt; Client and Server.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;create-certificates-and-docker-containers&quot;&gt;Create certificates and Docker containers.&lt;/h3&gt;
+
+&lt;p&gt;In this lab I’m using self-signed certificates but when you plan for a production solution you should go with certificates from an &lt;a href=&quot;https://en.wikipedia.org/wiki/Certificate_authority#Providers&quot;&gt;Provider&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;During the signing proccess you need to fill in &lt;em&gt;County Code, State, City, Organization, Common Name, Department and e-mail&lt;/em&gt; just remember the &lt;strong&gt;password&lt;/strong&gt; as it will be used in the convert process.&lt;/p&gt;
+
+&lt;h6 id=&quot;create-a-lab-catalog-and-clone-docker-munki-ssl-repo&quot;&gt;Create a lab catalog and clone docker-munki-ssl repo.&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;mkdir -p ~/munki-lab
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~/munki-lab
+git clone git@github.com:ustwo/docker-munki-ssl.git&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;create-a-certificate-authority-root&quot;&gt;Create a Certificate Authority root&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;openssl genrsa -des3 -out ca.key 4096
+openssl req -new -x509 -days 365 -key ca.key -out ca.crt&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;create-the-client-key-and-csr&quot;&gt;Create the Client Key and CSR&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;openssl genrsa -des3 -out client.key 4096
+openssl req -new -key client.key -out client.csr&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;self-sign-client-crt&quot;&gt;Self-sign Client crt&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;openssl x509 -req -days 365 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;convert-client-key-and-crt-to-pem&quot;&gt;Convert Client Key and crt to PEM&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;openssl x509 -in client.crt -out client-munki.crt.pem -outform PEM
+openssl rsa -in client.key -out client-munki.key.pem -outform PEM&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;create-the-server-key-and-crt&quot;&gt;Create the Server Key and CRT&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;build-the-munki-container&quot;&gt;Build the munki container&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker build -t munki-ssl .&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;create-a-data-container&quot;&gt;Create a Data Container:&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker run -d --name munki-data --entrypoint /bin/echo munki-ssl Data-only container &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;munki-ssl&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;start-the-munki-ssl-container&quot;&gt;Start the munki-ssl container&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker run -d --name munki-ssl --volumes-from munki-data -p 443:443 -h munki-ssl munki-ssl&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;what-about-data-in-your-repo&quot;&gt;What about data in your repo?&lt;/h3&gt;
+&lt;p&gt;It’s high time to fill your repo with data, in my lab I used &lt;a href=&quot;https://hub.docker.com/r/nmcspadden/smb-munki/&quot;&gt;smb share&lt;/a&gt; to share the munki-data container then I used &lt;a href=&quot;http://www.lindegroup.com/autopkgr&quot;&gt;Autopkgr&lt;/a&gt; and &lt;a href=&quot;http://hjuutilainen.github.io/munkiadmin/&quot;&gt;MunkiAdmin&lt;/a&gt; to fill it.
+It will not be covered in this guide but &lt;a href=&quot;google.com&quot;&gt;google&lt;/a&gt; will help your out.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;munki-client-setup&quot;&gt;Munki Client setup&lt;/h3&gt;
+
+&lt;p&gt;Transfer &lt;em&gt;client-munki.crt.pem&lt;/em&gt; and &lt;em&gt;client-munki.key.pem&lt;/em&gt; to your client.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;scp client-munki.&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; admin@client.example.com:/tmp&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The ssh to your client machine and continue the setup.&lt;/p&gt;
+
+&lt;h6 id=&quot;place-certs-in-managed-install-folder&quot;&gt;Place certs in Managed Install folder&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sudo mkdir -p /Library/Managed&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Installs/certs
+sudo chmod 0700 /Library/Managed&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Installs/certs
+sudo cp /tmp/client-munki.crt.pem /Library/Managed&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Installs/certs/client-munki.crt.pem
+sudo cp /tmp/client-munki.key.pem /Library/Managed&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Installs/certs/client-munki.key.pem
+sudo chmod 0600 /Library/Managed&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Installs/certs/client-munki&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+sudo chown root:wheel /Library/Managed&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Installs/certs/client-munki&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;change-the-managedinstallsplist-defaults&quot;&gt;Change the ManagedInstalls.plist defaults:&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sudo defaults write /Library/Preferences/ManagedInstalls SoftwareRepoURL &lt;span class=&quot;s2&quot;&gt;&quot;https://munki.example.com/repo&quot;&lt;/span&gt;
+sudo defaults write /Library/Preferences/ManagedInstalls ClientCertificatePath &lt;span class=&quot;s2&quot;&gt;&quot;/Library/Managed Installs/certs/client-munki.crt.pem&quot;&lt;/span&gt;
+sudo defaults write /Library/Preferences/ManagedInstalls ClientKeyPath &lt;span class=&quot;s2&quot;&gt;&quot;/Library/Managed Installs/certs/client-munki.key.pem&quot;&lt;/span&gt;
+sudo defaults write /Library/Preferences/ManagedInstalls UseClientCertificate -bool TRUE&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h6 id=&quot;test-out-the-client&quot;&gt;Test out the client:&lt;/h6&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sudo /usr/local/munki/managedsoftwareupdate -vvv --checkonly&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;hr /&gt;
+
+&lt;h6 id=&quot;sources&quot;&gt;Sources&lt;/h6&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.afp548.com/2015/01/22/building-munki-with-docker&quot;&gt;afp548&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gist.github.com/mtigas/952344&quot;&gt;mtigas&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://pravka.net/nginx-mutual-auth&quot;&gt;pravka&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.nginx.org/FullExample&quot;&gt;nginx&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
-        
         <pubDate>Fri, 28 Aug 2015 21:49:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/Munki-SSL-Docker/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/Munki-SSL-Docker/</guid>
+        <link>http://aulin.co//2015/Munki-SSL-Docker/</link>
+        <guid isPermaLink="true">http://aulin.co//2015/Munki-SSL-Docker/</guid>
+        
+        
       </item>
     
       <item>
         <title>VMware-Fusion Docker-machine</title>
-        
-        
-          <description>&lt;h3&gt;Introduction&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.
+***&lt;/p&gt;
 
-&lt;p&gt;In this tutorial I will cover how I a docker-machine lab environment using VMWare Fusion.&lt;/p&gt;
+&lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.apple.com/mac/&quot;&gt;Mac Computer&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.vmware.com/products/fusion&quot;&gt;VMWare Fusion&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.docker.com/toolbox&quot;&gt;Docker Toolbox&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;hr&gt;
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;create-our-lab-environment&quot;&gt;Create our lab environment&lt;/h3&gt;
+&lt;p&gt;If you followed all the prerequisites you should now have a standard vmware and docker toolbox environment setup.
+Lets start with creating the docker-machine in VMWare Fusion.&lt;/p&gt;
+
+&lt;h5 id=&quot;docker-machine&quot;&gt;Docker Machine&lt;/h5&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;docker-machine create -d vmwarefusion docker
+&lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;docker-machine env docker&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h5 id=&quot;network-configuration&quot;&gt;Network configuration&lt;/h5&gt;
+&lt;p&gt;In my lab environment I chose to use the NAT (vmware8) network.
+Since I have several other virtual machines that I want to keep in the same environment.&lt;/p&gt;
+
+&lt;p&gt;I want my VM’s to have static IP’s then I can create records in /etc/hosts on my machine and osx vm’s.&lt;/p&gt;
+
+&lt;p&gt;Edit the dhcpd file with your favorit edit and add your hosts after the line &lt;em&gt;####### VMNET DHCP Configuration. End of “DO NOT MODIFY SECTION” ######.&lt;/em&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sudo vim /Library/Preferences/VMware&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Fusion/vmnet8/dhcpd.conf&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;em&gt;Want to use a CLI to check hosts MAC Address but during this lab lets use VMware Fusion App and check each hosts Network &amp;gt; Settings &amp;gt; Advanced Options and write down the MAC Address.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Added three host in my case, docker(munki) vm, osx client vm and a osx server vm.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;host docker &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    hardware ethernet EE:EE:EE:EE:EE:EE;
+    fixed-address 192.168.125.140;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;em&gt;Edit the hosts file with your favorit edit and add your hosts after the last line&lt;/em&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sudo vim /etc/hosts&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;192.168.125.140 docker.example.com&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Restart the vmnet, docker machine and your OSX VM’s.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;:/Applications/VMware Fusion.app/Contents/Library/&quot;&lt;/span&gt;
+sudo vmnet-cli --configure
+sudo vmnet-cli --stop
+sudo vmnet-cli --start
+docker-machine stop munki
+docker-machine start munki&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Thats it, you now have a docker-machine running in vmware and you are ready to start your journey into the fantastic world of docker.&lt;/p&gt;
 </description>
-        
         <pubDate>Sun, 23 Aug 2015 14:20:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/VMware-Fusion/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/VMware-Fusion/</guid>
-      </item>
-    
-      <item>
-        <title>Munki with SSL</title>
+        <link>http://aulin.co//2015/VMware-Fusion/</link>
+        <guid isPermaLink="true">http://aulin.co//2015/VMware-Fusion/</guid>
         
         
-          <description>&lt;h3&gt;Introduction&lt;/h3&gt;
-
-&lt;p&gt;In this tutorial I will cover how to setup an &lt;a href=&quot;https://www.munki.org/munki&quot;&gt;Munki&lt;/a&gt; environment with client SSL authentication. Hosting the munki data and web server in docker and using a osx machine for populating data using &lt;a href=&quot;https://github.com/lindegroup/autopkgr&quot;&gt;Autopkgr&lt;/a&gt;. Most guides out there use &lt;a href=&quot;https://www.chef.io&quot;&gt;Chef&lt;/a&gt; or &lt;a href=&quot;https://puppetlabs.com&quot;&gt;Puppet&lt;/a&gt; to push client configuration but I wanted to focus on docker and have the possibility to move between solutions depending on situation and current infrastructure.&lt;/p&gt;
-</description>
-        
-        <pubDate>Sun, 23 Aug 2015 14:20:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/2015-08-28-Munki-S3-Nginx-Proxy/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/2015-08-28-Munki-S3-Nginx-Proxy/</guid>
-      </item>
-    
-      <item>
-        <title>Dockers</title>
-        
-        
-          <description>&lt;h3&gt;Stuff I learnd and use with dockers.&lt;/h3&gt;
-
-&lt;p&gt;I&amp;#39;m using a Apple Mac with VMware Fusion and the latest &lt;a href=&quot;https://www.docker.com/toolbox&quot;&gt;Docker Toolbox&lt;/a&gt;.
-Docker default configuration is to use Virtualbox so I added some tips how to use VMware Fusion instead, also added some more cpu and memory if I need some more beef for full system containers.&lt;/p&gt;
-</description>
-        
-        <pubDate>Sun, 23 Aug 2015 12:27:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/2015-09-23-Dockers-tips-and-trix/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/2015-09-23-Dockers-tips-and-trix/</guid>
-      </item>
-    
-      <item>
-        <title>random</title>
-        
-        
-          <description>&lt;p&gt;Here are some of the trip and trix I tend to use when testing out Dockers.&lt;/p&gt;
-</description>
-        
-        <pubDate>Tue, 11 Aug 2015 16:12:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/random-stuff/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/random-stuff/</guid>
-      </item>
-    
-      <item>
-        <title>Travis-ci and HockeyApp</title>
-        
-        
-          <description></description>
-        
-        <pubDate>Fri, 07 Aug 2015 11:12:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/Travis-CI_and_HockeyApp/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/Travis-CI_and_HockeyApp/</guid>
-      </item>
-    
-      <item>
-        <title>restapis3</title>
-        
-        
-          <description>&lt;p&gt;AdditionalHttpHeaders&lt;/p&gt;
-</description>
-        
-        <pubDate>Fri, 07 Aug 2015 10:12:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/s3restapi/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/s3restapi/</guid>
-      </item>
-    
-      <item>
-        <title>Synology DNS</title>
-        
-        
-          <description>&lt;p&gt;Here is a tutorial to set up the DNS on your Synology box.&lt;/p&gt;
-</description>
-        
-        <pubDate>Fri, 07 Aug 2015 10:12:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/Synology-DNS/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/Synology-DNS/</guid>
       </item>
     
       <item>
         <title>AWS day to day</title>
-        
-        
-          <description>&lt;p&gt;I love working from the console and aws-cli could be your best friend.
-Guide how to install this on you system can be found on &lt;a href=&quot;http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html&quot;&gt;Getting Set Up with the AWS Command Line Interface&lt;/a&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;I love working from the console and aws-cli could be your best friend.
+Guide how to install this on you system can be found on [Getting Set Up with the AWS Command Line Interface] (http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html).&lt;/p&gt;
+
+&lt;p&gt;Once you have finished all the step and can execute aws ec2 describe-instances from your favorit console your are ready!&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 describe-instances
+-------------------
+|DescribeInstances|
++-----------------+&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;First step is to generate a SSH key, you can use multiple keys depending on needs.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;ssh-keygen -t rsa -f ~/.ssh/aws-&amp;lt;NAME_OF_KEY&amp;gt;-ec2 -b 4096&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Next step is to upload your SSH key to your AWS.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 import-key-pair --key-name aws-&amp;lt;NAME_OF_KEY&amp;gt;-ec2-key --public-key-material &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;cat ~/.ssh/aws-&amp;lt;NAME_OF_KEY&amp;gt;-ec2.pub&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;”&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now its time to crete a security group and some basic rules.
+In my case I only want to allow SSH traffic from a know WAN IP.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 create-security-group --group-name SSHRule --description &lt;span class=&quot;s2&quot;&gt;&quot;Inbound SSH from know IP address&quot;&lt;/span&gt;
+
+aws ec2 authorize-security-group-ingress --group-name SSHRule --cidr &amp;lt;WAN_IP&amp;gt;/32 --protocol tcp --port 22&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;I use Frankfurt DataCenter and you can find images on &lt;a href=&quot;https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#LaunchInstanceWizard:&quot;&gt;Amazon Machine Image (AMI)&lt;/a&gt;.
+In this example I’m using Ubuntu Server 14.04 LTS (HVM), SSD Volume Type - ami-accff2b1 on a micro hardware model.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 run-instances --image-id ami-accff2b1 --key-name aws-&amp;lt;NAME_OF_KEY&amp;gt;-ec2-key --instance-type t2.micro --security-groups SSHRule&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Machine will now be build and external IP address associated with the host.
+You can find the PublicIp address greping the describe-instances.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;aws ec2 describe-instances | grep PublicIp
+&lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;|  PublicIpAddress       |  52.XX.XX.83                                         &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt;|
+&lt;span class=&quot;o&quot;&gt;||||&lt;/span&gt;|  PublicIp      |  52.XX.XX.83                                             &lt;span class=&quot;o&quot;&gt;||||&lt;/span&gt;|
+&lt;span class=&quot;o&quot;&gt;||||||&lt;/span&gt;  PublicIp      |  52.XX.XX.83&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now you are ready to SSH to your machine.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;ssh -i ~/.ssh/aws-&amp;lt;NAME_OF_KEY&amp;gt;-ec2 -l ubuntu 52.XX.XX.185&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
 </description>
-        
         <pubDate>Thu, 06 Aug 2015 18:12:00 +0200</pubDate>
-        <link>http://erikaulin.github.io/2015/AWS-tips-and-trix/</link>
-        <guid isPermaLink="true">http://erikaulin.github.io/2015/AWS-tips-and-trix/</guid>
+        <link>http://aulin.co//2015/AWS-tips-and-trix/</link>
+        <guid isPermaLink="true">http://aulin.co//2015/AWS-tips-and-trix/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Upgrade ESXi from 5.5 to 6</title>
+        <description>&lt;p&gt;It was time to upgrade my macmini’s running vmware ESXi 5.5 to 6.
+Since I didn’t want to hazzel with ISO’s and do it from the comfort of my desk I chose to do it via SSH and esxcli.&lt;/p&gt;
+
+&lt;p&gt;Shut down all VMs on your ESXi host machine.&lt;/p&gt;
+
+&lt;p&gt;Connect via SSH and enter maintenance mode.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;vim-cmd /hostsvc/maintenance_mode_enter&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;To be able to download the updates you need a firewall rule for httpClient.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;esxcli network firewall ruleset &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; -e &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt; -r httpClient&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Next, you need to list the ESXi 6.x files available. It’s listed with Software, version, release number and build. In my case as of 2015-08 it’s ESXi-6.0.0-2494585-standard.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;esxcli software sources profile list -d https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/vmw-depot-index.xml | grep ESXi-6&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now you are ready to upgrade your system.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;esxcli software profile update -d https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/vmw-depot-index.xml -p ESXi-6.0.0-2494585-standard&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now you are ready to restart the machine and enjoy ESXi-6 and its features.
+Remember if you are upgrading a macmini you might need to reselect EFI Boot after restart.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 06 Aug 2015 13:59:00 +0200</pubDate>
+        <link>http://aulin.co//2015/ESXi-Upgrade5-5to6-0/</link>
+        <guid isPermaLink="true">http://aulin.co//2015/ESXi-Upgrade5-5to6-0/</guid>
+        
+        
       </item>
     
   </channel>
