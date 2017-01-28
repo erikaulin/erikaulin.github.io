@@ -2,7 +2,7 @@
 title:  "Upgrade ESXi from 5.5 to 6"
 date:   2015-08-06 11:59:00
 description: Macmini's need an upgrade from ESXi 5.5 to 6 using SSH and esxcli
-keywords: erik aulin,blog,osx,ustwo,development,esxi,ESXi-6,esxcli
+keywords: erik,aulin,blog,osx,ustwo,development,esxi,ESXi-6,esxcli
 ---
 
 It was time to upgrade my macmini's running vmware ESXi 5.5 to 6.

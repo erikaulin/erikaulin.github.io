@@ -5,9 +5,61 @@
     <description>Blog about tech stuff</description>
     <link>http://aulin.co//</link>
     <atom:link href="http://aulin.co//feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 27 Jan 2017 20:34:04 +0100</pubDate>
-    <lastBuildDate>Fri, 27 Jan 2017 20:34:04 +0100</lastBuildDate>
+    <pubDate>Sat, 28 Jan 2017 09:42:06 +0100</pubDate>
+    <lastBuildDate>Sat, 28 Jan 2017 09:42:06 +0100</lastBuildDate>
     <generator>Jekyll v3.0.2</generator>
+    
+      <item>
+        <title>Traefik</title>
+        <description>&lt;p&gt;This is is a test page&lt;/p&gt;
+</description>
+        <pubDate>Sat, 28 Jan 2017 08:41:00 +0100</pubDate>
+        <link>http://aulin.co//2017/Traefik/</link>
+        <guid isPermaLink="true">http://aulin.co//2017/Traefik/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Jamf Pro with Elastic Beanstalk and RDS</title>
+        <description>&lt;p&gt;In this tutorial I will cover how to setup a &lt;a href=&quot;https://www.jamf.com/products/jamf-pro/&quot;&gt;Jamf Pro&lt;/a&gt; hosted on &lt;a href=&quot;https://aws.amazon.com/&quot;&gt;AWS&lt;/a&gt;.
+Jamf uses &lt;a href=&quot;http://tomcat.apache.org/&quot;&gt;Tomcat&lt;/a&gt; and &lt;a href=&quot;https://www.mysql.com/&quot;&gt;MySQL&lt;/a&gt; so I will make use of &lt;a href=&quot;aws.amazon.com/ElasticBeanstalk&quot;&gt;Elastic Beanstalk&lt;/a&gt; and &lt;a href=&quot;https://aws.amazon.com/rds&quot;&gt;RDS&lt;/a&gt;. &lt;a href=&quot;https://www.jamf.com/jamf-nation/articles/383/information-required-to-configure-a-cloud-distribution-point-in-the-jss&quot;&gt;Cloud Distribution Point&lt;/a&gt; will be hosted on &lt;a href=&quot;https://aws.amazon.com/s3&quot;&gt;S3&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://aws.amazon.com/free&quot;&gt;AWS Account&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.oracle.com/technetwork/java/javase/downloads/index.html&quot;&gt;Java SE Development Kit 8&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I’m using a macbook pro with 10.12.3 and terminal so if your using any other type of hardware or os you need to find your own way around these paths of the guide&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;get-started&quot;&gt;Get started&lt;/h3&gt;
+
+&lt;p&gt;First you need to download the &lt;a href=&quot;https://www.jamf.com/jamf-nation/my/products&quot;&gt;JSS Manual Installation&lt;/a&gt; that we need to extract and edit before using it with &lt;a href=&quot;aws.amazon.com/ElasticBeanstalk&quot;&gt;Elastic Beanstalk&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/jamf/casper-manual-installation.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Download file and move it to a location in my case &lt;em&gt;~/LABS/JSSInstallation&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/jamf/casper-unzip.png&quot; alt=&quot;Folder Stucture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Create a directory where to extract the war file.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;mkdir ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;cp ~/LABS/JSSInstallation/JSS&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Components/ROOT.war .&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+</description>
+        <pubDate>Fri, 27 Jan 2017 22:41:00 +0100</pubDate>
+        <link>http://aulin.co//2017/Jamf/</link>
+        <guid isPermaLink="true">http://aulin.co//2017/Jamf/</guid>
+        
+        
+      </item>
     
       <item>
         <title>Munki</title>
