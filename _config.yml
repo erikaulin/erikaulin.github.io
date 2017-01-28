@@ -4,7 +4,7 @@ description: Blog about tech stuff
 url: 'http://aulin.co'
 baseurl: /
 google_analytics: 'UA-73208915-1'
-# disqus_shortname: 'airikr'
+ #disqus_shortname: 'airikr'
 
 author:
   name: 'Erik AULIN'

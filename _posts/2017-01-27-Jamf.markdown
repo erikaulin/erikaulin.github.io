@@ -1,0 +1,245 @@
+---
+title:  "Jamf Pro with Elastic Beanstalk and RDS"
+date:   2017-01-27 21:41:00
+description: How to setup a Jamf Pro in AWS using Elastic Beanstalk and RDS
+keywords: erik,aulin,blog,jamf,capser,jss,development,aws,eb,elastic,Beanstalk,rds,tomcat,mysql
+---
+
+In this tutorial I will cover how to setup a [Jamf Pro](https://www.jamf.com/products/jamf-pro/) hosted on [AWS](https://aws.amazon.com/).
+Jamf uses [Tomcat](http://tomcat.apache.org/) and [MySQL](https://www.mysql.com/) so I will make use of [Elastic Beanstalk](aws.amazon.com/ElasticBeanstalk) and [RDS](https://aws.amazon.com/rds). [Cloud Distribution Point](https://www.jamf.com/jamf-nation/articles/383/information-required-to-configure-a-cloud-distribution-point-in-the-jss) will be hosted on [S3](https://aws.amazon.com/s3).
+
+### Prerequisites
+* [AWS Account](https://aws.amazon.com/free)
+* [Java SE Development Kit 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+
+***
+
+### Get started
+
+First you need to download the [JSS Manual Installation](https://www.jamf.com/jamf-nation/my/products) that we need to extract and edit before using it with [Elastic Beanstalk](aws.amazon.com/ElasticBeanstalk).
+
+![Folder Structure](/images/jamf/casper-manual-installation.png)
+
+Download file and move it to a location in my case *~/LABS/JSSInstallation*
+
+![Folder Structure](/images/jamf/casper-unzip.png)
+
+Create a directory where to extract the war file, make a copy for the war file to extract.
+
+{% highlight bash %}
+mkdir ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/
+{% endhighlight %}
+
+{% highlight bash %}
+cd ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/
+{% endhighlight %}
+
+{% highlight bash %}
+cp ~/LABS/JSSInstallation/JSS\ Components/ROOT.war .
+{% endhighlight %}
+
+{% highlight bash %}
+jar -xvf ROOT.war && rm ROOT.war
+{% endhighlight %}
+
+***
+
+#### File configuration
+
+When using [Elastic Beanstalk](aws.amazon.com/ElasticBeanstalk) you need to add some extensions to switch proxy from default [apache](https://www.apache.org/) to [nginx](https://www.nginx.com/) as apache does not have the required backend configurations needed. This is easily done using [ebextensions](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/ebextensions.html).
+
+Create the catalog inside the extracted catalog.
+
+{% highlight bash %}
+mkdir ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/.ebextensions
+{% endhighlight %}
+
+Create tomcat settings files.
+
+{% highlight bash %}
+vim ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/.ebextensions/tomcat-settings.config
+{% endhighlight %}
+
+In this example I have set some new memoy settings to use *512m* RAM as base of a maximum *1536m* and switched default proxy to nginx.
+
+{% highlight bash %}
+option_settings:
+  aws:elasticbeanstalk:container:tomcat:jvmoptions:
+    Xms: 512m
+    Xmx: 1536m
+    JVM Options: '-Xmn128m'
+  aws:elasticbeanstalk:environment:proxy:
+    GzipCompression: 'true'
+    ProxyServer: nginx
+{% endhighlight %}
+
+For nginx and load balancing to work we need to update *remote-ip-valve* option to *server.xml*.
+
+{% highlight bash %}
+vim ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/.ebextensions/tomcat-server-xml.config
+{% endhighlight %}
+
+{% highlight bash %}
+files:
+  "/tmp/update_tomcat_server_xml.sh":
+    owner: root
+    group: root
+    mode: "000755"
+    content: |
+      #! /bin/bash
+      CONFIGURED=`grep -c 'remoteIpProxiesHeader="x-forwarded-by"' /etc/tomcat8/server.xml`
+      if [ $CONFIGURED = 0 ]
+        then
+          sed -i 's/protocolHeader="X-Forwarded-Proto"/remoteIpHeader="x-forwarded-for" remoteIpProxiesHeader="x-forwarded-by" protocolHeader="x-forwarded-proto"/' /etc/tomcat8/server.xml
+          logger -t tomcat_conf "/etc/tomcat8/server.xml updated successfully"
+          exit 0
+        else
+          logger -t tomcat_conf "/etc/tomcat8/server.xml already updated"
+          exit 0
+      fi
+
+container_commands:
+  00_update_tomcat_server_xml:
+    command: sh /tmp/update_tomcat_server_xml.sh
+{% endhighlight %}
+
+Now we are ready to compress the project, check out *Bonus* or move over to *Compress WAR file*
+
+***
+
+#### Bonus
+
+Set environment variables in the *Database.xml* so you can define these during the creations of the application in [Elastic Beanstalk](aws.amazon.com/ElasticBeanstalk).
+
+**Work in progress**
+
+***
+
+#### Compress WAR file
+
+Extensions to project has been added and it's time to compress the updated file.
+
+{% highlight bash %}
+cd  ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/
+{% endhighlight %}
+
+{% highlight bash %}
+jar -cvf jamf.9.97.1482356336.eb.war * .ebextensions
+{% endhighlight %}
+
+Now we are ready to move over to AWS console where you will upload the *jamf.9.97.1482356336.eb.war*.
+
+***
+
+### AWS
+
+Now it's time to setup an application first we need to click *Create New Application* in top left corner.
+
+![Folder Structure](/images/jamf/jamf-ebs-create.png)
+
+Next fill in a name for your application and description and click Create.
+
+![Folder Structure](/images/jamf/jamf-ebs-new-app.png)
+
+Next select *Application versions* and click *Upload* and fill in the details as shown below and select the file *jamf.9.97.1482356336.eb.war* we created.
+
+![Folder Structure](/images//jamf/jamf-ebs-new-app-version-upload.png)
+
+Now select *Environments* on the left side and click *Create one now.* and select *Web server environment*
+
+![Folder Structure](/images//jamf/jamf-ebs-new-env.png)
+
+Now need to setup the basics and *more options* begin with select **Tomcat** as **platform** and **jamf.9.97.1482356336.eb.war** as **Existing version**
+
+![Folder Structure](/images//jamf/jamf-ebs-new-env-step1.png)
+
+Now click **Configure more options** where you need to set **Environment settings**, **Instances** and **Database**. There are more options but these you can explore on your own.
+
+****
+
+#### Environment settings
+
+Now select *Environment settings* and feel to fill in the fields with your own details.
+
+![Folder Structure](/images//jamf/jamf-ebs-new-env-step2.png)
+
+#### Software
+
+Now select *Software* and fill all fields as show in screenshot but change **RDS_USERNAME** and **RDS_PASSWORD** vaules to something of your own choosing.
+
+You can use *RDS_HOSTNAME* if you have created the mysql database pre-hand in [RDS](https://aws.amazon.com/rds) but in this guide I will skip this step.
+
+![Folder Structure](/images//jamf/jamf-ebs-new-env-step3.png)
+
+
+#### Instances
+
+Jamf Pro's recommendations are a server with 2GB ram so I chose t2.small. If this becomes an issue in your production you can always later switch and redeploy application or activate load balancing. Check out the different [EC2 Instance Types](https://aws.amazon.com/ec2/instance-types/).
+
+![Folder Structure](/images//jamf/jamf-ebs-new-env-step4.png)
+
+#### Database
+
+Here I'm using the basic out of the box but depending on your production needs you can select *Storage* and if know that you have lots of load select a bigger instance class. Now fill in the same **password** and **username** you used with your environment variables.
+
+![Folder Structure](/images//jamf/jamf-ebs-new-env-step5.png)
+
+#### Capacity / Load balancer / Notifications / Monitoring?
+
+In this guide I'm using just the one server with port 80 but you might want to use different settings in production and you can explore on your own.
+
+#### Security / Network
+
+I'm using the default rules that will be created and can always be updated once deployed.
+
+### Ready to start application?
+
+Now it's time to hit the big button
+
+![Folder Structure](/images//jamf/jamf-ebs-create-env.png)
+
+This process will take 15-30 minutes depending on the load AWS has in your region.
+
+![Folder Structure](/images//jamf/jamf-ebs-creating-step1.png)
+
+Once it's all run in course refresh the site and it should look something like this if all went fine.
+
+![Folder Structure](/images//jamf/jamf-ebs-creating-step2.png)
+
+#### Jamf setup
+
+Now it's time to configure Jamf Pro and until I finished bonus section you need to fill in this information manaul.
+Go to *Configuration* on the left side and copy the *Data Tier > RDS > Endpoint URL*.
+
+![Folder Structure](/images//jamf/jamf-ebs-rds-endpoint.png)
+
+Then go to the URL you specified in environment. ex. *demoproject.eu-central-1.elasticbeanstalk.com*
+
+![Folder Structure](/images//jamf/jamf-ebs-rds-url.png)
+
+During database setup you currently need to fill in your DB details manually.
+
+![Folder Structure](/images//jamf/jamf-ebs-jss-database.png)
+
+Now you are ready to configure Jamf Pro! Congratulations!
+
+***
+
+### Production
+
+Currently I'm using this setup in my client environment to give you a hit on how a products setup could look like.
+
+![Folder Structure](/images//jamf/jamf-ebs-cloud_macOS.png)
+
+
+{% highlight bash %}
+{% endhighlight %}
+
+### Disclamer / FAQ
+
+* There are some issues with uploading file inside the Jamf console so I'm using *Jamf Admin* to sync between a local Distribution Point and Cloud Distribution Point.
+
+### Credits
+
+* [dsepton]([LINK](https://www.jamf.com/jamf-nation/discussions/12928/remote-ip-valve-x-forwarding-with-elastic-load-balancing#responseChild115151))
+* [bobmarksie](http://stackoverflow.com/questions/12264432/how-do-i-supply-configuration-to-elastic-beanstalk-tomcat)

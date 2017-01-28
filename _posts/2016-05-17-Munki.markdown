@@ -2,7 +2,7 @@
 title:  "Munki"
 date:   2016-05-17 19:49:00
 description: Munki with a twist of cloud
-keywords: erik aulin,blog,osx,docker,munki,vmware,ustwo,development,ssl
+keywords: erik,aulin,blog,osx,docker,munki,vmware,ustwo,development,ssl
 ---
 
 In this tutorial I will cover how to setup an [Munki](https://www.munki.org/munki) environment in the cloud. OSX clients will use a HTTP header Array to authenticate towards an dockerized nginx-s3-proxy that will serve repo hosted on AWS S3.
