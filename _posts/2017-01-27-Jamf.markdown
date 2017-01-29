@@ -227,7 +227,7 @@ Now you are ready to configure Jamf Pro! Congratulations!
 
 ### Production
 
-Currently I'm using this setup in my client environment to give you a hit on how a products setup could look like.
+Currently I'm moving an environment to AWS instead of On-Prem to give you a hint on how this could look like in production.
 
 ![Folder Structure](/images//jamf/jamf-ebs-cloud_macOS.png)
 
