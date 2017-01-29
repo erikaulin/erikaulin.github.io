@@ -10,7 +10,6 @@ Jamf uses [Tomcat](http://tomcat.apache.org/) and [MySQL](https://www.mysql.com/
 
 ### Prerequisites
 * [AWS Account](https://aws.amazon.com/free)
-* [Java SE Development Kit 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ***
 
@@ -109,7 +108,7 @@ Now we are ready to compress the project, check out *Bonus* or move over to *Com
 
 #### Bonus
 
-Set environment variables in the *Database.xml* so you can define these during the creations of the application in [Elastic Beanstalk](aws.amazon.com/ElasticBeanstalk).
+Use environment variables with the *Database.xml* so you can define these during the creations of the application in [Elastic Beanstalk](aws.amazon.com/ElasticBeanstalk).
 
 **Work in progress**
 
@@ -117,7 +116,7 @@ Set environment variables in the *Database.xml* so you can define these during t
 
 #### Compress WAR file
 
-Extensions to project has been added and it's time to compress the updated file.
+Extensions to the project has been added and it's time to compress the updated file.
 
 {% highlight bash %}
 cd  ~/LABS/JSSInstallation/jamf.9.97.1482356336.eb/
@@ -133,7 +132,7 @@ Now we are ready to move over to AWS console where you will upload the *jamf.9.9
 
 ### AWS
 
-Now it's time to setup an application first we need to click *Create New Application* in top left corner.
+It's time to setup an application, first we need to click *Create New Application* in top left corner.
 
 ![Folder Structure](/images/jamf/jamf-ebs-create.png)
 
@@ -174,7 +173,7 @@ You can use *RDS_HOSTNAME* if you have created the mysql database pre-hand in [R
 
 #### Instances
 
-Jamf Pro's recommendations are a server with 2GB ram so I chose t2.small. If this becomes an issue in your production you can always later switch and redeploy application or activate load balancing. Check out the different [EC2 Instance Types](https://aws.amazon.com/ec2/instance-types/).
+Jamf Pro's recommendations are 2GB ram so I chose t2.small. If this becomes an issue in your production you can always later switch and redeploy application or activate load balancing. Check out the different [EC2 Instance Types](https://aws.amazon.com/ec2/instance-types/).
 
 ![Folder Structure](/images//jamf/jamf-ebs-new-env-step4.png)
 
@@ -208,26 +207,26 @@ Once it's all run in course refresh the site and it should look something like t
 
 #### Jamf setup
 
-Now it's time to configure Jamf Pro and until I finished bonus section you need to fill in this information manaul.
+It's time to configure Jamf Pro and until I finished bonus section you need to fill in this information manaul.
 Go to *Configuration* on the left side and copy the *Data Tier > RDS > Endpoint URL*.
 
 ![Folder Structure](/images//jamf/jamf-ebs-rds-endpoint.png)
 
-Then go to the URL you specified in environment. ex. *demoproject.eu-central-1.elasticbeanstalk.com*
+To access the jamf dashboard use the URL you specified in environment. ex. *demoproject.eu-central-1.elasticbeanstalk.com*
 
 ![Folder Structure](/images//jamf/jamf-ebs-rds-url.png)
 
-During database setup you currently need to fill in your DB details manually.
+Currently you need to fill in your DB details manually but more will come in the bonus section.
 
 ![Folder Structure](/images//jamf/jamf-ebs-jss-database.png)
 
-Now you are ready to configure Jamf Pro! Congratulations!
+You are ready to start using Jamf Pro! Congratulations!
 
 ***
 
 ### Production
 
-Currently I'm moving an environment to AWS instead of On-Prem to give you a hint on how this could look like in production.
+I'm currently moving an environment to AWS instead of On-Prem. Here is a example on how this could look like in production.
 
 ![Folder Structure](/images//jamf/jamf-ebs-cloud_macOS.png)
 
